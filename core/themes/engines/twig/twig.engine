@@ -1,0 +1,114 @@
+<?php
+
+/**
+ * @file
+ * Handles integration of PHP templates with the Twig theme system.
+ * See (http://twig.sensiolabs.org/) for more information regarding Twig.
+ *
+ */
+
+/**
+ * registers the .tpl.html extension for twig templates
+ * @return string
+ */
+function twig_extension() {
+  return '.tpl.twig';
+}
+/**
+ * Implements hook_init().
+ */
+function twig_init($template) {
+  $file = dirname($template->filename) . '/template.php';
+  if (file_exists($file)) {
+    require_once DRUPAL_ROOT . '/' . $file;
+  }
+
+  // Load Twig.
+  // See: (http://twig.sensiolabs.org/doc/intro.html).
+  require_once DRUPAL_ROOT . '/themes/engines/twig/Twig/Autoloader.php';
+  Twig_Autoloader::register();
+}
+
+/**
+ * Implements hook_theme().
+ *
+ * Finds theme templates for both extensions. Drupal will not allow the use of
+ * multiple rendering engines in the theme. Since the entire theme.inc file
+ * is a kludge, I feel OK in doing things like so.
+ */
+function twig_theme($existing, $type, $theme, $path) {
+  $templates = drupal_find_theme_functions($existing, array('twig', $theme));
+  $templates += drupal_find_theme_templates($existing, twig_extension(), $path);
+  $templates += drupal_find_theme_templates($existing, '.tpl.php', $path);
+  return $templates;
+}
+
+
+/**
+ * Implementation of hook ENGINE_render_template
+ *
+ * Checks if the twig template is available or else let drupal fallback to phptemplate.
+ *
+ * @param string $template
+ *   Template filename
+ *
+ * @param array $variables
+ *   Variables to be assigned to template.
+ *
+ * @return string
+ *   Rendered template.
+ */
+function twig_render_template($template, $variables = array()) {
+  if (!file_exists($template)) {
+    // Check to see if there is a .php version of the same file in the current theme.
+    // FYI, there has to be a .php version of the template in the theme. Only template paths
+    // added to the theme registry in twig_theme() will be passed to this function.
+    $phptemplate = str_replace(twig_extension(), '.tpl.php', $template);
+    if (file_exists($phptemplate)) {
+      return theme_render_template($phptemplate, $variables);
+    }
+    return FALSE;
+  }
+
+  // If the .twig template is found, render the template using twig.
+  global $theme_info;
+  $theme_templates_dir = drupal_get_path('theme', $theme_info->name);
+
+  $loader = new Twig_Loader_Filesystem($theme_templates_dir);
+  $twig = new Twig_Environment($loader, array(
+      'cache' => 'public://.twig_cache',
+      'debug' => TRUE,
+      'autoescape' => FALSE, // Automatically escape all output
+  ));
+  $twig->addExtension(new Twig_Extension_Debug());
+
+  $template_name = substr($template, strlen($theme_templates_dir) + 1);
+
+  try {
+    $content = $twig->render($template_name, $variables);
+  }
+  catch (Exception $e) {
+    $content = t('Twig error "!error"', array('!error' => $e->getMessage()));
+  }
+
+  return $content;
+}
+
+
+/**
+ * Clears the template cache folder.
+ */
+function twig_clear_cache() {
+  $twig = new Twig_Environment();
+  $twig->setCache('public://twig_cache' . '/theme');
+
+  try {
+    $twig->clearCacheFiles();
+    watchdog('twig', 'The Twig cache was cleared.');
+    return TRUE;
+  }
+  catch (Exception $e) {
+    watchdog('twig', 'An error occured while attempting to clear the Twig cache. Error: !error', array('!error' => $e->getMessage()));
+    return FALSE;
+  }
+}
