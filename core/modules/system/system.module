@@ -3375,7 +3375,7 @@ function system_timezone($abbreviation = '', $offset = -1, $is_daylight_saving_t
  * @ingroup themeable
  */
 function theme_system_powered_by() {
-  return '<span>' . t('Powered by Core 7 CMF of fork of <a href="@poweredby">Drupal</a>', array('@poweredby' => 'http://drupal.org')) . '</span>';
+  return '<span>' . t('Powered by <a href="@forklink">Core 7 CMF</a> of fork of  <a href="@poweredby">Drupal</a>', array('@forklink' => 'https://github.com/Happensit/Core7', '@poweredby' => 'http://drupal.org')) . '</span>';
 }
 
 /**

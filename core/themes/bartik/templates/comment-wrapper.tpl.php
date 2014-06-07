@@ -32,9 +32,10 @@
  *   into a string within the variable $classes.
  *
  * @see template_preprocess_comment_wrapper()
+ * @see theme_comment_wrapper()
  */
 ?>
-<div id="comments" class="<?php print $classes; ?>"<?php print $attributes; ?>>
+<section id="comments" class="<?php print $classes; ?>"<?php print $attributes; ?>>
   <?php if ($content['comments'] && $node->type != 'forum'): ?>
     <?php print render($title_prefix); ?>
     <h2 class="title"><?php print t('Comments'); ?></h2>
@@ -47,4 +48,4 @@
     <h2 class="title comment-form"><?php print t('Add new comment'); ?></h2>
     <?php print render($content['comment_form']); ?>
   <?php endif; ?>
-</div>
+</section>
