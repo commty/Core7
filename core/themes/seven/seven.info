@@ -3,8 +3,19 @@ description = A simple one-column, tableless, fluid width administration theme.
 package = Core
 version = VERSION
 core = 7.x
+
 stylesheets[screen][] = reset.css
 stylesheets[screen][] = style.css
+;stylesheets[all][] = flat/bootstrap/css/bootstrap.css
+;stylesheets[all][] = flat/css/flat-ui.css
+
+;scripts[] = flat/js/bootstrap.min.js
+;scripts[] = flat/js/flatui-checkbox.js
+;scripts[] = flat/js/flatui-radio.js
+
+;scripts[] = flat/js/app.js
+
+
 settings[shortcut_module_link] = 1
 regions[content] = Content
 regions[help] = Help
@@ -13,8 +24,8 @@ regions[page_bottom] = Page bottom
 regions[sidebar_first] = First sidebar
 regions_hidden[] = sidebar_first
 
-; Information added by Drupal.org packaging script on 2014-04-16
-version = "7.27"
+; Information added by Drupal.org packaging script on 2014-05-08
+version = "7.28"
 project = "drupal"
-datestamp = "1397687057"
+datestamp = "1399522731"
 

@@ -420,7 +420,8 @@ abstract class DatabaseTasks {
       }
     }
     if (!empty($message)) {
-      $message = '<p>In order for Drupal to work, and to continue with the installation process, you must resolve all issues reported below. For more help with configuring your database server, see the <a href="http://drupal.org/getting-started/install">installation handbook</a>. If you are unsure what any of this means you should probably contact your hosting provider.</p>' . $message;
+      $message = '<p>Для того, чтобы продолжить процесс установки, вам необходимо решить все вопросы, представленные ниже.
+      Если вы не уверены, что все это означает, то вам, вероятно, следует связаться с хостинг-провайдером. </p>' . $message;
       throw new DatabaseTaskException($message);
     }
   }
@@ -437,7 +438,7 @@ abstract class DatabaseTasks {
       $this->pass('Drupal can CONNECT to the database ok.');
     }
     catch (Exception $e) {
-      $this->fail(st('Failed to connect to your database server. The server reports the following message: %error.<ul><li>Is the database server running?</li><li>Does the database exist, and have you entered the correct database name?</li><li>Have you entered the correct username and password?</li><li>Have you entered the correct database hostname?</li></ul>', array('%error' => $e->getMessage())));
+      $this->fail(st('Невозможно подключиться к SQL серверу. Сервер возвращает следующее сообщение: %error.<ul><li>Убедитесь, что сервер базы данных запущен.</li><li>Существует ли база данных имя которой вы указали в настройках подключения?</li><li>Вы ввели правильные имя пользователя и пароль?</li><li>Вы указали правильное имя сервера базы данных?</li></ul>', array('%error' => $e->getMessage())));
       return FALSE;
     }
     return TRUE;
