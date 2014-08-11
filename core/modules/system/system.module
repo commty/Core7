@@ -134,7 +134,7 @@ function system_help($path, $arg) {
     case 'admin/config/people/ip-blocking':
       return '<p>' . t('IP addresses listed here are blocked from your site. Blocked addresses are completely forbidden from accessing the site and instead see a brief message explaining the situation.') . '</p>';
     case 'admin/reports/status':
-      return '<p>' . t("Here you can find a short overview of your site's parameters as well as any problems detected with your installation.") . '</p>';
+      return '<p>' . t("Here you can find a short overview of your site's parameters as well as any problems detected with your installation. It may be useful to copy and paste this information into support requests filed on drupal.org's support forums and project issue queues.") . '</p>';
   }
 }
 
@@ -232,6 +232,7 @@ function system_permission() {
     ),
     'access site reports' => array(
       'title' => t('View site reports'),
+      'restrict access' => TRUE,
     ),
     'block IP addresses' => array(
       'title' => t('Block IP addresses'),
@@ -2033,7 +2034,7 @@ function system_block_info() {
     'region' => 'content',
   );
   $blocks['powered-by'] = array(
-    'info' => t('Powered by Core'),
+    'info' => t('Powered by Core 7'),
     'weight' => '10',
     'cache' => DRUPAL_NO_CACHE,
   );

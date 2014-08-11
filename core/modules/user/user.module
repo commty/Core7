@@ -3669,7 +3669,7 @@ function user_image_style_save($style) {
 function user_action_info() {
   return array(
     'user_block_user_action' => array(
-      'label' => t('Block user(s)'),
+      'label' => t('Block current user'),
       'type' => 'user',
       'configurable' => FALSE,
       'triggers' => array('any'),

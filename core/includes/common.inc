@@ -208,7 +208,7 @@ function drupal_get_region_content($region = NULL, $delimiter = ' ') {
 }
 
 /**
- * Gets the name of the currently active install profile.
+ * Gets the name of the currently active installation profile.
  *
  * When this function is called during Drupal's initial installation process,
  * the name of the profile that's about to be installed is stored in the global
@@ -217,7 +217,7 @@ function drupal_get_region_content($region = NULL, $delimiter = ' ') {
  * variable_get() to determine what one is active.
  *
  * @return $profile
- *   The name of the install profile.
+ *   The name of the installation profile.
  */
 function drupal_get_profile() {
   global $install_state;
@@ -452,7 +452,7 @@ function drupal_get_query_parameters(array $query = NULL, array $exclude = array
  *   The query string to split.
  *
  * @return
- *   An array of url decoded couples $param_name => $value.
+ *   An array of URL decoded couples $param_name => $value.
  */
 function drupal_get_query_array($query) {
   $result = array();
@@ -575,6 +575,7 @@ function drupal_get_destination() {
  *
  * @see url()
  * @see drupal_goto()
+ * * @see l()
  * @ingroup php_wrappers
  */
 function drupal_parse_url($url) {
@@ -641,7 +642,7 @@ function drupal_encode_path($path) {
 }
 
 /**
- * Sends the user to a different Drupal page.
+ * Sends the user to a different page.
  *
  * This issues an on-site HTTP redirect. The function makes sure the redirected
  * URL is formatted correctly.
@@ -820,6 +821,7 @@ function drupal_http_request($url, array $options = array()) {
     'timeout' => 30.0,
     'context' => NULL,
   );
+
   // stream_socket_client() requires timeout to be a float.
   $options['timeout'] = (float) $options['timeout'];
 
@@ -4149,7 +4151,7 @@ function drupal_add_js($data = NULL, $options = NULL) {
   $options['weight'] += count($javascript) / 1000;
 
   if (isset($data)) {
-    // Add jquery.js and application.js, as well as the basePath setting, the
+    // Add jquery.js and core.js, as well as the basePath setting, the
     // first time a JavaScript file is added.
     if (empty($javascript)) {
       // url() generates the prefix using hook_url_outbound_alter(). Instead of
@@ -4959,9 +4961,8 @@ function drupal_build_js_cache($files) {
       }
     }
 
-    // Allow modules to act on the js_cache before writing to disk.
-    //drupal_alter('js_cache', $contents);
-    /** @var @todo Cheeck simpletest */
+    // Prefix filename to prevent blocking by firewalls which reject files
+    // starting with "ad*".
     $filename = substr(md5(uniqid()), 0, 13) . '.js';
     // Create the js/ within the files folder.
     $jspath = 'public://js';
@@ -5070,6 +5071,11 @@ function drupal_get_private_key() {
  *
  * @param $value
  *   An additional value to base the token on.
+ *
+ * The generated token is based on the session ID of the current user. Normally,
+ * anonymous users do not have a session, so the generated token will be
+ * different on every page request. To generate a token for users without a
+ * session, manually start a session prior to calling this function.
  *
  * @return string
  *   A 43-character URL-safe token for validation, based on the user session ID,
@@ -5380,7 +5386,6 @@ function drupal_cron_cleanup() {
 function drupal_system_listing($mask, $directory, $key = 'name', $min_depth = 1) {
   $config = conf_path();
   $files = array();
-
   // Search for the directory in core.
   $searchdir = array('core/' . $directory);
 
@@ -6193,7 +6198,7 @@ function drupal_render_collect_attached($elements, $return = FALSE) {
  *   added to this string and is also part of the cache key in
  *   drupal_render_cache_set() and drupal_render_cache_get().
  * @param $expire
- *   The cache expire time, passed eventually to cache()->set().
+ *   The cache expire time, passed eventually to cache_set().
  * @param $granularity
  *   One or more granularity constants passed to drupal_render_cid_parts().
  *
@@ -7841,7 +7846,10 @@ function entity_load_unchanged($entity_type, $id) {
 }
 
 /**
- * Get the entity controller class for an entity type.
+ * Gets the entity controller for an entity type.
+ *
+ * @return DrupalEntityControllerInterface
+ *   The entity controller object for the specified entity type.
  */
 function entity_get_controller($entity_type) {
   $controllers = &drupal_static(__FUNCTION__, array());

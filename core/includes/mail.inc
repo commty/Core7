@@ -139,7 +139,7 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
   // Build the default headers
   $headers = array(
     'MIME-Version'              => '1.0',
-    'Content-Type'              => 'text/html; charset=UTF-8; format=flowed; delsp=yes',
+    'Content-Type'              => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
     'Content-Transfer-Encoding' => '8Bit',
     'X-Mailer'                  => 'Drupal'
   );

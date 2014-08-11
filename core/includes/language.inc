@@ -186,7 +186,6 @@ function language_types_set() {
   // Determine which language types are configurable and which not by checking
   // whether the 'fixed' key is defined. Non-configurable (fixed) language types
   // have their language negotiation settings stored there.
-  $language_types = array();
   $defined_providers = language_negotiation_info();
   foreach (language_types_info() as $type => $info) {
     if (isset($info['fixed'])) {

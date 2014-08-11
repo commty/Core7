@@ -8,7 +8,7 @@
 /**
  * The current system version.
  */
-define('VERSION', '7.28');
+define('VERSION', '7.31');
 
 /**
  * Core API compatibility.
@@ -306,12 +306,12 @@ define('DRUPAL_PHP_FUNCTION_PATTERN', '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*'
 abstract class DrupalCacheArray implements ArrayAccess {
 
   /**
-   * A cid to pass to cache()->set() and cache()->get().
+   * A cid to pass to cache_set() and cache_get().
    */
   protected $cid;
 
   /**
-   * A bin to pass to cache()->set() and cache()->get().
+   * A bin to pass to cache_set() and cache_get().
    */
   protected $bin;
 
@@ -724,7 +724,14 @@ function drupal_environment_initialize() {
  *  TRUE if only containing valid characters, or FALSE otherwise.
  */
 function drupal_valid_http_host($host) {
-  return preg_match('/^\[?(?:[a-zA-Z0-9-:\]_]+\.?)+$/', $host);
+  // Limit the length of the host name to 1000 bytes to prevent DoS attacks with
+  // long host names.
+  return strlen($host) <= 1000
+    // Limit the number of subdomains and port separators to prevent DoS attacks
+    // in conf_path().
+    && substr_count($host, '.') <= 100
+    && substr_count($host, ':') <= 100
+    && preg_match('/^\[?(?:[a-zA-Z0-9-:\]_]+\.?)+$/', $host);
 }
 
 /**
@@ -3056,7 +3063,7 @@ function drupal_get_complete_schema($rebuild = FALSE) {
         // That would break modules which use $schema further down the line.
         $current = (array) module_invoke($module, 'schema');
         // Set 'module' and 'name' keys for each table, and remove descriptions,
-        // as they needlessly slow down cache()->get() for every single request.
+        // as they needlessly slow down cache_get() for every single request.
         _drupal_schema_initialize($current, $module);
         $schema = array_merge($schema, $current);
       }

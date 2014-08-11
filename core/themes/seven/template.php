@@ -5,11 +5,17 @@
  */
 function seven_preprocess_maintenance_page(&$vars) {
   // While markup for normal pages is split into page.tpl.php and html.tpl.php,
-  // the markup for the maintenance page is all in the single
-  // maintenance-page.tpl.php template. So, to have what's done in
-  // seven_preprocess_html() also happen on the maintenance page, it has to be
-  // called here.
-  seven_preprocess_html($vars);
+    // the markup for the maintenance page is all in the single
+    // maintenance-page.tpl.php template. So, to have what's done in
+    // seven_preprocess_html() also happen on the maintenance page, it has to be
+    // called here.
+    seven_preprocess_html($vars);
+
+    // Add bootstrap framework
+    drupal_add_css(path_to_theme(). '/flat/bootstrap/css/bootstrap.css', array('group'=> CSS_THEME, 'preprocess' => FALSE));
+    drupal_add_css(path_to_theme(). '/flat/css/flat-ui.css', array('group'=> CSS_THEME, 'preprocess' => FALSE));
+    drupal_add_js(path_to_theme(). '/flat/js/flatui-radio.js', array('type' => 'file'));
+    drupal_add_js(path_to_theme(). '/flat/js/app.js', array('type' => 'file'));
 }
 
 /**
@@ -22,6 +28,8 @@ function seven_preprocess_html(&$vars) {
   drupal_add_css(path_to_theme() . '/ie7.css', array('group' => CSS_THEME, 'browsers' => array('IE' => 'lte IE 7', '!IE' => FALSE), 'weight' => 999, 'preprocess' => FALSE));
   // Add conditional CSS for IE6.
   drupal_add_css(path_to_theme() . '/ie6.css', array('group' => CSS_THEME, 'browsers' => array('IE' => 'lte IE 6', '!IE' => FALSE), 'weight' => 999, 'preprocess' => FALSE));
+
+  drupal_add_js(path_to_theme(). '/flat/js/bootstrap.min.js', array('type' => 'file'));
 }
 
 /**
@@ -115,4 +123,56 @@ function seven_css_alter(&$css) {
     $css['misc/ui/jquery.ui.theme.css']['data'] = drupal_get_path('theme', 'seven') . '/jquery.ui.theme.css';
     $css['misc/ui/jquery.ui.theme.css']['type'] = 'file';
   }
+}
+
+
+/**
+ * Overrides status_messages();
+ */
+function seven_status_messages($variables) {
+  $display = $variables['display'];
+  $output = '';
+
+  $status_heading = array(
+    'status' => t('Status message'),
+    'error' => t('Error message'),
+    'warning' => t('Warning message'),
+    'info' => t('Informative message'),
+  );
+
+  // Map Drupal message types to their corresponding Bootstrap classes.
+  // @see http://twitter.github.com/bootstrap/components.html#alerts
+  $status_class = array(
+    'status' => 'success',
+    'error' => 'danger',
+    'warning' => 'warning',
+    // Not supported, but in theory a module could send any type of message.
+    // @see drupal_set_message()
+    // @see theme_status_messages()
+    'info' => 'info',
+  );
+
+  foreach (drupal_get_messages($display) as $type => $messages) {
+    $class = (isset($status_class[$type])) ? ' alert-' . $status_class[$type] : '';
+    $output .= "<div class=\"alert alert-block$class\">\n";
+    $output .= "  <a class=\"close\" data-dismiss=\"alert\" href=\"#\">&times;</a>\n";
+
+    if (!empty($status_heading[$type])) {
+      $output .= '<h4 class="element-invisible">' . $status_heading[$type] . "</h4>\n";
+    }
+
+    if (count($messages) > 1) {
+      $output .= " <ul>\n";
+      foreach ($messages as $message) {
+        $output .= '  <li>' . $message . "</li>\n";
+      }
+      $output .= " </ul>\n";
+    }
+    else {
+      $output .= $messages[0];
+    }
+
+    $output .= "</div>\n";
+  }
+  return $output;
 }

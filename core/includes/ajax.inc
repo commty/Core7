@@ -308,10 +308,11 @@ function ajax_render($commands = array()) {
  * pulls the form info from $_POST.
  *
  * @return
- *   An array containing the $form and $form_state. Use the list() function
- *   to break these apart:
+ *   An array containing the $form, $form_state, $form_id, $form_build_id and an
+ *   initial list of Ajax $commands. Use the list() function to break these
+ *   apart:
  *   @code
- *     list($form, $form_state, $form_id, $form_build_id) = ajax_get_form();
+ *     list($form, $form_state, $form_id, $form_build_id, $commands) = ajax_get_form();
  *   @endcode
  */
 function ajax_get_form() {
@@ -407,7 +408,7 @@ function ajax_form_callback() {
 }
 
 /**
- * Theme callback: Returns the correct theme for an Ajax request.
+ * Theme callback for Ajax requests.
  *
  * Many different pages can invoke an Ajax request to system/ajax or another
  * generic Ajax path. It is almost always desired for an Ajax response to be

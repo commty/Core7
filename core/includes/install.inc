@@ -185,7 +185,7 @@ function drupal_set_installed_schema_version($module, $version) {
 }
 
 /**
- * Loads the install profile, extracting its defined distribution name.
+ * Loads the installation profile, extracting its defined distribution name.
  *
  * @return
  *   The distribution name defined in the profile's .info file. Defaults to
@@ -501,23 +501,11 @@ abstract class DatabaseTasks {
       '#size' => 45,
     );
 
-//    $form['advanced_options'] = array(
-//      '#type' => 'fieldset',
-//      '#title' => st('Advanced options'),
-//      '#collapsible' => TRUE,
-//      '#collapsed' => TRUE,
-//      '#description' => st("These options are only necessary for some sites. If you're not sure what you should enter here, leave the default settings or check with your hosting provider."),
-//      '#weight' => 10,
-//    );
-
-//    $profile = drupal_get_profile();
-    //$db_prefix = ($profile == 'standard' || $profile == 'minimal') ? 'core_' : $profile . '_';
     $form['advanced_options']['db_prefix'] = array(
       '#type' => 'textfield',
       '#title' => 'Префикс таблиц',
       '#default_value' => 'core_',
       '#size' => 45,
-      //'#description' => st('If more than one application will be sharing this database, enter a table prefix such as %prefix for your @drupal site here.', array('@drupal' => drupal_install_profile_distribution_name(), '%prefix' => $db_prefix)),
       '#weight' => 10,
     );
 
@@ -529,7 +517,6 @@ abstract class DatabaseTasks {
       // Hostnames can be 255 characters long.
       '#maxlength' => 255,
       '#required' => TRUE,
-      //'#description' => st('If your database is located on a different server, change this.'),
     );
 
     $form['advanced_options']['port'] = array(
@@ -539,7 +526,6 @@ abstract class DatabaseTasks {
       '#size' => 45,
       // The maximum port number is 65536, 5 digits.
       '#maxlength' => 5,
-      //'#description' => st('If your database server is listening to a non-standard port, enter its number.'),
     );
 
     return $form;
@@ -773,7 +759,7 @@ function drupal_uninstall_modules($module_list = array(), $uninstall_dependents 
     $profile = drupal_get_profile();
     while (list($module) = each($module_list)) {
       if (!isset($module_data[$module]) || drupal_get_installed_schema_version($module) == SCHEMA_UNINSTALLED) {
-        // This module doesn't exist or is already uninstalled, skip it.
+        // This module doesn't exist or is already uninstalled. Skip it.
         unset($module_list[$module]);
         continue;
       }

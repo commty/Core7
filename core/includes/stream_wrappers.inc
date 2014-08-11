@@ -768,7 +768,6 @@ class DrupalPublicStreamWrapper extends DrupalLocalStreamWrapper {
    * Implements abstract public function getDirectoryPath()
    */
   public function getDirectoryPath() {
-//    return variable_get('file_public_path', conf_path() . '/files');
     return variable_get('file_public_path', 'public');
   }
 

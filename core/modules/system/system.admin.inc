@@ -950,7 +950,11 @@ function system_sort_modules_by_info_name($a, $b) {
 }
 
 /**
- * Array sorting callback; sorts modules or themes by their name.
+ * Sorts themes by their names, with the default theme listed first.
+ *
+ * Callback for uasort() within system_themes_page().
+ *
+ * @see system_sort_modules_by_info_name().
  */
 function system_sort_themes($a, $b) {
   if ($a->is_default) {
@@ -1795,7 +1799,6 @@ function system_file_system_settings() {
   $form['file_public_path'] = array(
     '#type' => 'textfield',
     '#title' => t('Public file system path'),
-//    '#default_value' => variable_get('file_public_path', conf_path() . '/files'),
     '#default_value' => variable_get('file_public_path', 'public'),
     '#maxlength' => 255,
     '#description' => t('A local file system path where public files will be stored. This directory must exist and be writable by Drupal. This directory must be relative to the Drupal installation directory and be accessible over the web.'),

@@ -1420,9 +1420,7 @@ function theme_get_setting($setting_name, $theme = NULL) {
     // Turn on all default features.
     $features = _system_default_theme_features();
     foreach ($features as $feature) {
-      if($feature != 'comment_user_verification'){
-        $cache[$theme]['toggle_' . $feature] = 1;
-      }
+      $cache[$theme]['toggle_' . $feature] = 1;
     }
 
     // Get the values for the theme-specific settings from the .info files of
@@ -2030,10 +2028,10 @@ function theme_table($variables) {
  */
 function theme_tablesort_indicator($variables) {
   if ($variables['style'] == "asc") {
-    return theme('image', array('uri' => 'misc/arrow-asc.png', 'width' => 13, 'height' => 13, 'alt' => t('sort ascending'), 'title' => t('sort ascending')));
+    return theme('image', array('path' => 'misc/arrow-asc.png', 'width' => 13, 'height' => 13, 'alt' => t('sort ascending'), 'title' => t('sort ascending')));
   }
   else {
-    return theme('image', array('uri' => 'misc/arrow-desc.png', 'width' => 13, 'height' => 13, 'alt' => t('sort descending'), 'title' => t('sort descending')));
+    return theme('image', array('path' => 'misc/arrow-desc.png', 'width' => 13, 'height' => 13, 'alt' => t('sort descending'), 'title' => t('sort descending')));
   }
 }
 

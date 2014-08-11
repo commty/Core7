@@ -1485,28 +1485,7 @@ function _locale_parse_js_file($filepath) {
   $parsed_url = drupal_parse_url($filepath);
   $filepath = $parsed_url['path'];
   // Load the JavaScript file.
-  $uri = @parse_url($filepath);
-  if ($uri == FALSE) {
-     drupal_set_message(t('Unable to parse js url.'), 'error');
-    return;
-  }
-
-  if (!isset($uri['scheme'])) {
-     global $base_url;
-    $streamed_filepath = $base_url . '/' . $filepath;
-  }
-  elseif (in_array($uri['scheme'], array('http', 'https', 'proxy'))) {
-        // drupal_http_request() supports only these three stream wrappers.
-        $streamed_filepath = $filepath;
-      }
-  else {
-       drupal_set_message(t('Unsupported js file stream wrapper.'), 'error');
-      return;
-  }
-  // Prefering drupal_http_request() to file_get_contents().
-  // drupal_http_request() needs a fully qualified uri. In the locales_source
-  // table, however, we store $filepath.
-  $file = drupal_http_request($streamed_filepath)->data;
+  $file = file_get_contents($filepath);
 
   // Match all calls to Drupal.t() in an array.
   // Note: \s also matches newlines with the 's' modifier.
