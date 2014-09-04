@@ -1682,7 +1682,8 @@ function theme_links($variables) {
   $output = '';
 
   if (count($links) > 0) {
-    $output = '';
+    //$output = '';
+      //https://github.com/drupal/drupal/commit/0867207af614d7f416dc81548a832f68fc533b7b
 
     // Treat the heading first if it is present to prepend it to the
     // list of links.
@@ -2076,11 +2077,13 @@ function theme_item_list($variables) {
   $title = $variables['title'];
   $type = $variables['type'];
   $attributes = $variables['attributes'];
+  $class = isset($variables['class']) ? $variables['class'] : '';
+  $container_id = isset($variables['container_id']) ? ' id="' . $variables['container_id'] . '"' : '';
 
   // Only output the list container and title, if there are any list items.
   // Check to see whether the block title exists before adding a header.
   // Empty headers are not semantic and present accessibility challenges.
-  $output = '<div class="item-list">';
+    $output = '<div ' . $container_id . ' class="item-list">';
   if (isset($title) && $title !== '') {
     $output .= '<h3>' . $title . '</h3>';
   }
@@ -2114,13 +2117,15 @@ function theme_item_list($variables) {
         // Render nested list.
         $data .= theme_item_list(array('items' => $children, 'title' => NULL, 'type' => $type, 'attributes' => $attributes));
       }
-      if ($i == 1) {
-        $attributes['class'][] = 'first';
-      }
+//      if ($i == 1) {
+//        $attributes['class'][] = 'first';
+//      }
       if ($i == $num_items) {
-        $attributes['class'][] = 'last';
+        $attributes['id'] = 'last';
       }
-      $output .= '<li' . drupal_attributes($attributes) . '>' . $data . "</li>\n";
+        $attributes['class'][] = $class;
+
+      $output .= '<li' .drupal_attributes($attributes) . '>' . $data . "</li>\n";
     }
     $output .= "</$type>";
   }

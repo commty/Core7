@@ -606,7 +606,8 @@ This is a list of all the values from the <code><b><?php echo realpath($ini_file
       foreach($hive as $i=>$bee){
         // skip closures set as properties
         $closure_prototype = function(){};
-        if (is_object($bee) && !($bee instanceof $closure_prototype)) {
+        //if ($bee && !($bee instanceof $closure_prototype)) {
+        if ($bee) {
           unset($hive[$i]->$_recursion_marker);
           // DEVEL: changed 'else' to 'elseif' below
           } elseif (is_array($bee)) {
