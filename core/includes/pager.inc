@@ -322,8 +322,8 @@ function theme_pager($variables) {
   $element = $variables['element'];
   $parameters = $variables['parameters'];
   $quantity = $variables['quantity'];
-  if ($quantity > 3) :
-    $quantity = 3;
+  if ($quantity > 5) :
+    $quantity = 5;
   endif;
   global $pager_page_array, $pager_total, $pager_total_items;
 
@@ -366,18 +366,18 @@ function theme_pager($variables) {
   $li_last = theme('pager_last', array('text' => (isset($tags[4]) ? $tags[4] : t('last »')), 'element' => $element, 'parameters' => $parameters));
 
   if ($pager_total[$element] > 1) {
-    if ($li_previous) {
-      $items[] = array(
-        'class' => array('pager-previous'),
-        'data' => $li_previous,
-      );
-    }
-    if ($li_first && $pager_current - 1 > 1 ) {
-      $items[] = array(
-        'class' => array('pager-first'),
-        'data' => $li_first,
-      );
-    }
+//    if ($li_previous) {
+//      $items[] = array(
+//        'class' => array('pager-previous'),
+//        'data' => $li_previous,
+//      );
+//    }
+//    if ($li_first && $pager_current - 1 > 2 ) {
+//      $items[] = array(
+//        'class' => array('pager-first'),
+//        'data' => $li_first,
+//      );
+//    }
 
     // When there is more than one page, create the pager list.
     if ($i != $pager_max) {
@@ -415,23 +415,25 @@ function theme_pager($variables) {
         );
       }
     }
-    // End generation.
+
+    if ($li_next) {
+      $items[] = array(
+        'class' => array('pager-next'),
+        'data' => $li_next,
+          'data' => $li_next,
+      );
     if ($li_last) {
       $items[] = array(
         'class' => array('pager-last'),
         'data' => $li_last,
       );
     }
-    if ($li_next) {
-      $items[] = array(
-        'class' => array('pager-next'),
-        'data' => $li_next,
-      );
+
     }
 
     return '<h2 class="element-invisible">' . t('Pages') . '</h2>' . theme('item_list', array(
       'items' => $items,
-      'attributes' => array('class' => array('pager')),
+      'attributes' => array('class' => array('pager', 'clearfix')),
     ));
   }
 }

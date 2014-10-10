@@ -143,7 +143,7 @@ function block_menu() {
   );
   foreach (list_themes() as $key => $theme) {
     $items['admin/structure/block/list/' . $key] = array(
-      'title' => check_plain($theme->info['name']),
+      'title' => check_plain($theme->name),
       'page arguments' => array($key),
       'type' => $key == $default_theme ? MENU_DEFAULT_LOCAL_TASK : MENU_LOCAL_TASK,
       'weight' => $key == $default_theme ? -10 : 0,
@@ -162,7 +162,7 @@ function block_menu() {
       );
     }
     $items['admin/structure/block/demo/' . $key] = array(
-      'title' => check_plain($theme->info['name']),
+      'title' => check_plain($theme->name),
       'page callback' => 'block_admin_demo',
       'page arguments' => array($key),
       'type' => MENU_CALLBACK,

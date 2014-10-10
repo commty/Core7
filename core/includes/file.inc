@@ -1752,17 +1752,16 @@ function file_validate_size(stdClass $file, $file_limit = 0, $user_limit = 0) {
 
   $errors = array();
 
-  // Bypass validation for uid  = 1.
-  if ($user->uid != 1) {
+    //https://github.com/drupal/drupal/commit/99c124d4d4c86d2cd2a9dc65d71632bc0dd98c1a#diff-4e0145abc1f82e6483c217eea8f84333R1747
     if ($file_limit && $file->filesize > $file_limit) {
-      $errors[] = t('The file is %filesize exceeding the maximum file size of %maxsize.', array('%filesize' => format_size($file->filesize), '%maxsize' => format_size($file_limit)));
+           $errors[] = t('The file is %filesize exceeding the maximum file size of %maxsize.', array('%filesize' => format_size($file->filesize), '%maxsize' => format_size($file_limit)));
     }
 
     // Save a query by only calling file_space_used() when a limit is provided.
     if ($user_limit && (file_space_used($user->uid) + $file->filesize) > $user_limit) {
-      $errors[] = t('The file is %filesize which would exceed your disk quota of %quota.', array('%filesize' => format_size($file->filesize), '%quota' => format_size($user_limit)));
+        $errors[] = t('The file is %filesize which would exceed your disk quota of %quota.', array('%filesize' => format_size($file->filesize), '%quota' => format_size($user_limit)));
     }
-  }
+
   return $errors;
 }
 

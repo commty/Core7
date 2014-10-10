@@ -635,7 +635,7 @@ function system_menu() {
 
   foreach (list_themes() as $theme) {
     $items['admin/appearance/settings/' . $theme->name] = array(
-      'title' => $theme->info['name'],
+      'title' => $theme->name,
       'page arguments' => array('system_theme_settings', $theme->name),
       'type' => MENU_LOCAL_TASK,
       'access callback' => '_system_themes_access',
@@ -1159,6 +1159,8 @@ function system_library() {
     ),
   );
 
+
+
   // jQuery.
   $libraries['jquery'] = array(
     'title' => 'jQuery',
@@ -1220,17 +1222,17 @@ function system_library() {
   );
 
   // Farbtastic.
-  $libraries['farbtastic'] = array(
-    'title' => 'Farbtastic',
-    'website' => 'http://code.google.com/p/farbtastic/',
-    'version' => '1.2',
-    'js' => array(
-      'misc/farbtastic/farbtastic.js' => array(),
-    ),
-    'css' => array(
-      'misc/farbtastic/farbtastic.css' => array(),
-    ),
-  );
+//  $libraries['farbtastic'] = array(
+//    'title' => 'Farbtastic',
+//    'website' => 'http://code.google.com/p/farbtastic/',
+//    'version' => '1.2',
+//    'js' => array(
+//      'misc/farbtastic/farbtastic.js' => array(),
+//    ),
+//    'css' => array(
+//      'misc/farbtastic/farbtastic.css' => array(),
+//    ),
+//  );
 
   // Cookie.
   $libraries['jquery.cookie'] = array(

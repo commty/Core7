@@ -1682,8 +1682,7 @@ function theme_links($variables) {
   $output = '';
 
   if (count($links) > 0) {
-    //$output = '';
-      //https://github.com/drupal/drupal/commit/0867207af614d7f416dc81548a832f68fc533b7b
+    //$output = '';  //https://github.com/drupal/drupal/commit/0867207af614d7f416dc81548a832f68fc533b7b
 
     // Treat the heading first if it is present to prepend it to the
     // list of links.
@@ -2480,9 +2479,9 @@ function template_preprocess_html(&$variables) {
   }
 
   // If on an individual node page, add the node type to body classes.
-  if ($node = menu_get_object()) {
-    $variables['classes_array'][] = drupal_html_class('node-type-' . $node->type);
-  }
+//  if ($node = menu_get_object()) {
+//    $variables['classes_array'][] = drupal_html_class('node-type-' . $node->type);
+//  }
 
   // RDFa allows annotation of XHTML pages with RDF data, while GRDDL provides
   // mechanisms for extraction of this RDF content via XSLT transformation
@@ -2495,19 +2494,20 @@ function template_preprocess_html(&$variables) {
   // Add favicon.
   if (theme_get_setting('toggle_favicon')) {
     $favicon = theme_get_setting('favicon');
-    $type = theme_get_setting('favicon_mimetype');
-    drupal_add_html_head_link(array('rel' => 'shortcut icon', 'href' => drupal_strip_dangerous_protocols($favicon), 'type' => $type));
+   // $type = theme_get_setting('favicon_mimetype');
+    //drupal_add_html_head_link(array('rel' => 'shortcut icon', 'href' => drupal_strip_dangerous_protocols($favicon), 'type' => $type));
+    drupal_add_html_head_link(array('rel' => 'shortcut icon', 'href' => drupal_strip_dangerous_protocols($favicon)));
   }
 
   // Construct page title.
   if (drupal_get_title()) {
     $head_title = array(
       'title' => strip_tags(drupal_get_title()),
-      'name' => check_plain(variable_get('site_name', 'Drupal')),
+      'name' => check_plain(variable_get('site_name', 'Core 7')),
     );
   }
   else {
-    $head_title = array('name' => check_plain(variable_get('site_name', 'Drupal')));
+    $head_title = array('name' => check_plain(variable_get('site_name', 'Core 7')));
     if (variable_get('site_slogan', '')) {
       $head_title['slogan'] = filter_xss_admin(variable_get('site_slogan', ''));
     }

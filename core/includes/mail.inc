@@ -139,9 +139,9 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
   // Build the default headers
   $headers = array(
     'MIME-Version'              => '1.0',
-    'Content-Type'              => 'text/plain; charset=UTF-8; format=flowed; delsp=yes',
+    'Content-Type'              => 'text/html; charset=UTF-8; format=flowed;',
     'Content-Transfer-Encoding' => '8Bit',
-    'X-Mailer'                  => 'Drupal'
+    'X-Mailer'                  => 'Core7'
   );
   if ($default_from) {
     // To prevent e-mail from looking like spam, the addresses in the Sender and
@@ -184,7 +184,7 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
       // Log errors.
       if (!$message['result']) {
         watchdog('mail', 'Error sending e-mail (from %from to %to).', array('%from' => $message['from'], '%to' => $message['to']), WATCHDOG_ERROR);
-        drupal_set_message(t('Unable to send e-mail. Contact the site administrator if the problem persists.'), 'error');
+        drupal_set_message("Отправка сообщения не удалась", 'error');
       }
     }
   }
