@@ -376,6 +376,7 @@ function image_field_widget_process($element, &$form_state, $form) {
 
   $element['#theme'] = 'image_widget';
   $element['#attached']['css'][] = drupal_get_path('module', 'image') . '/image.css';
+    $element['#attached']['js'][] = drupal_get_path('module', 'image') . '/autosubmit.js';
 
   // Add the image preview.
   if ($element['#file'] && $widget_settings['preview_image_style']) {

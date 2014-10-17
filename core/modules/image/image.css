@@ -5,10 +5,16 @@
 div.image-preview {
   float: left; /* LTR */
   padding: 0 10px 10px 0; /* LTR */
+    width: 180px;
 }
 div.image-widget-data {
   float: left; /* LTR */
 }
 div.image-widget-data input.text-field {
   width: auto;
+}
+
+div.image-preview img {
+    width: 100%;
+    height: auto;
 }
