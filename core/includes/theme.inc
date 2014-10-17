@@ -1472,13 +1472,7 @@ function theme_get_setting($setting_name, $theme = NULL)
             // Generate the path to the logo image.
             if ($cache[$theme]['toggle_logo']) {
                 if ($cache[$theme]['default_logo']) {
-                    $file_logo = file_create_url(dirname($theme_object->filename) . '/logo.png');
-                    $Headers = @get_headers($file_logo);
-                    if (strpos($Headers[0], '200')) {
-                        $cache[$theme]['logo'] = $file_logo;
-                    } else {
-                        $cache[$theme]['logo'] = file_create_url(variable_get('file_public_path') . '/logo.png'); // logo.png in public folder
-                    }
+                    $cache[$theme]['logo'] = file_create_url(dirname($theme_object->filename) . '/logo.png');
                 } elseif ($cache[$theme]['logo_path']) {
                     $cache[$theme]['logo'] = file_create_url($cache[$theme]['logo_path']);
                 }
