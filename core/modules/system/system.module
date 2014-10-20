@@ -1167,7 +1167,7 @@ function system_library() {
     'website' => 'http://jquery.com',
     'version' => '1.7.2',
     'js' => array(
-      'misc/jQuery/jquery.min.js' => array('group' => JS_LIBRARY, 'weight' => -20),
+      'misc/jquery.min.js' => array('group' => JS_LIBRARY, 'weight' => -20),
     ),
   );
 
@@ -1177,10 +1177,22 @@ function system_library() {
     'website' => 'http://plugins.jquery.com/project/once',
     'version' => '1.2.6',
     'js' => array(
-      'misc/jQuery/jquery.once.min.js' => array('group' => JS_LIBRARY, 'weight' => -19),
+      'misc/jquery.once.min.js' => array('group' => JS_LIBRARY, 'weight' => -19),
     ),
   );
 
+  // Farbtastic.
+  $libraries['farbtastic'] = array(
+    'title' => 'Farbtastic',
+    'website' => 'http://code.google.com/p/farbtastic/',
+    'version' => '1.2',
+    'js' => array(
+      'misc/farbtastic/farbtastic.js' => array(),
+    ),
+    'css' => array(
+      'misc/farbtastic/farbtastic.css' => array(),
+    ),
+  );
 
     // Cookie.
     $libraries['jquery.cookie'] = array(
@@ -1188,7 +1200,7 @@ function system_library() {
         'website' => 'http://plugins.jquery.com/project/cookie',
         'version' => '1.0',
         'js' => array(
-            'misc/jQuery/jquery.cookie.js' => array(),
+            'misc/jquery.cookie.js' => array(),
         ),
     );
 
@@ -1198,7 +1210,7 @@ function system_library() {
     'website' => 'http://malsup.com/jquery/form/',
     'version' => '3.31.0',
     'js' => array(
-      'misc/jQuery/jquery-form-3.31.0.min.js' => array(),
+      'misc/jquery-form-3.31.0.min.js' => array(),
     ),
     'dependencies' => array(
       array('system', 'jquery.cookie'),
@@ -1211,7 +1223,7 @@ function system_library() {
     'website' => 'http://benalman.com/projects/jquery-bbq-plugin/',
     'version' => '1.2.1',
     'js' => array(
-      'misc/jQuery/jquery.ba-bbq.js' => array(),
+      'misc/jquery.ba-bbq.js' => array(),
     ),
   );
 
@@ -1238,11 +1250,11 @@ function system_library() {
     'website' => 'http://jqueryui.com',
     'version' => '1.11.2',
     'js' => array(
-      'misc/jQuery/ui/jquery-ui.min.js' => array('group' => JS_LIBRARY, 'weight' => -11),
+      'misc/ui/jquery-ui.min.js' => array('group' => JS_LIBRARY, 'weight' => -11),
     ),
     'css' => array(
-      'misc/jQuery/ui/jquery-ui.min.css' => array(),
-      'misc/jQuery/ui/jquery-ui.theme.min.css' => array(),
+      'misc/ui/jquery-ui.min.css' => array(),
+      'misc/ui/jquery-ui.theme.min.css' => array(),
     ),
   );
 
