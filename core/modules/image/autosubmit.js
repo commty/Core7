@@ -5,7 +5,7 @@
 (function ($) {
     Drupal.behaviors.image = {
         attach: function(context) {
-            $('.form-item input.form-submit[value=Drupal.t("Upload")]', context).hide();
+            //$('.form-item input.form-submit[value=Drupal.t("Upload")]', context).hide();
             $('.form-item input.form-file', context).change(function() {
                 $parent = $(this).closest('.form-item');
                 setTimeout(function() {
