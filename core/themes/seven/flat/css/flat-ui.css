@@ -2896,9 +2896,6 @@ fieldset[disabled] .twitter-typeahead .tt-hint {
   box-shadow: none;
 }
 
-.progress .filled {
-    background: #2ecc71 !important;
-}
 .progress-bar-success {
   background-color: #2ecc71;
 }
