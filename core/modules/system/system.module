@@ -635,7 +635,7 @@ function system_menu() {
 
   foreach (list_themes() as $theme) {
     $items['admin/appearance/settings/' . $theme->name] = array(
-      'title' => $theme->name,
+      'title' => $theme->info['name'],
       'page arguments' => array('system_theme_settings', $theme->name),
       'type' => MENU_LOCAL_TASK,
       'access callback' => '_system_themes_access',
@@ -1258,6 +1258,25 @@ function system_library() {
     ),
   );
 
+    $libraries['bootstrap'] = array(
+        'title' => 'Boostrap',
+        'website' => 'http://getbootstrap.com',
+        'version' => '3.0.3',
+        'js' => array(
+            'misc/bootstrap/js/bootstrap.min.js' => array('group' => JS_LIBRARY, 'weight' => 1),
+        ),
+        'css' => array(
+            'misc/bootstrap/css/bootstrap.min.css' => array(),
+            'misc/bootstrap/css/bootstrap-theme.min.css' => array(),
+            'misc/bootstrap/css/font-awesome.min.css' => array(),
+        ),
+        'dependencies' => array(
+            array('system', 'jquery'),
+        ),
+    );
+
+
+
       // These library names are deprecated. Earlier versions of Drupal 7 didn't
       // consistently namespace their libraries, so these names are included for
       // backwards compatibility with those versions.
@@ -1528,7 +1547,7 @@ function system_init() {
     drupal_add_css($path . '/system.admin.css', array('group' => CSS_SYSTEM));
   }
   drupal_add_css($path . '/system.menus.css', array('group' => CSS_SYSTEM, 'every_page' => TRUE));
-  drupal_add_css($path . '/system.messages.css', array('group' => CSS_SYSTEM, 'every_page' => TRUE)); //remove messages.css
+  drupal_add_css($path . '/system.messages.css', array('group' => CSS_SYSTEM, 'every_page' => TRUE));
   drupal_add_css($path . '/system.theme.css', array('group' => CSS_SYSTEM, 'every_page' => TRUE));
 
   // Ignore slave database servers for this request.
@@ -2024,6 +2043,10 @@ function _system_rebuild_module_data() {
       continue;
     }
 
+    // Add the info file modification time, so it becomes available for
+    // contributed modules to use for ordering module lists.
+    $module->info['mtime'] = filemtime(dirname($module->uri) . '/' . $module->name . '.info');
+
     // Merge in defaults and save.
     $modules[$key]->info = $module->info + $defaults;
 
@@ -2161,6 +2184,10 @@ function _system_rebuild_theme_data() {
   foreach ($themes as $key => $theme) {
     $themes[$key]->filename = $theme->uri;
     $themes[$key]->info = drupal_parse_info_file($theme->uri) + $defaults;
+
+    // Add the info file modification time, so it becomes available for
+    // contributed modules to use for ordering theme lists.
+    $themes[$key]->info['mtime'] = filemtime($theme->uri);
 
     // Invoke hook_system_info_alter() to give installed modules a chance to
     // modify the data in the .info files if necessary.

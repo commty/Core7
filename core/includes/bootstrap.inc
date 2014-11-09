@@ -8,7 +8,7 @@
 /**
  * The current system version.
  */
-define('VERSION', '7.32');
+define('VERSION', '7.33');
 
 /**
  * Core API compatibility.
@@ -247,6 +247,15 @@ define('REGISTRY_WRITE_LOOKUP_CACHE', 2);
  * @see http://php.net/manual/language.functions.php
  */
 define('DRUPAL_PHP_FUNCTION_PATTERN', '[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*');
+
+/**
+ * A RFC7231 Compliant date.
+ *
+ * http://tools.ietf.org/html/rfc7231#section-7.1.1.1
+ *
+ * Example: Sun, 06 Nov 1994 08:49:37 GMT
+ */
+define('DATE_RFC7231', 'D, d M Y H:i:s \G\M\T');
 
 /**
  * Provides a caching wrapper to be used in place of large array structures.
@@ -884,9 +893,9 @@ function drupal_get_filename($type, $name, $filename = NULL) {
     try {
       if (function_exists('db_query')) {
         $file = db_query("SELECT filename FROM {system} WHERE name = :name AND type = :type", array(':name' => $name, ':type' => $type))->fetchField();
-        if (file_exists(DRUPAL_ROOT . '/' . $file)) {
-          $files[$type][$name] = $file;
-        }
+          if ($file !== FALSE && file_exists(DRUPAL_ROOT . '/' . $file)) {
+              $files[$type][$name] = $file;
+          }
       }
     }
     catch (Exception $e) {
@@ -1298,7 +1307,7 @@ function drupal_page_header() {
 
   $default_headers = array(
     'Expires' => 'Sun, 26 Oct 1986 06:00:00 GMT',
-    'Last-Modified' => gmdate(DATE_RFC1123, REQUEST_TIME),
+    'Last-Modified' => gmdate(DATE_RFC7231, REQUEST_TIME),
     'Cache-Control' => 'no-cache, must-revalidate, post-check=0, pre-check=0',
     'ETag' => '"' . REQUEST_TIME . '"',
   );
@@ -1368,7 +1377,7 @@ function drupal_serve_page_from_cache(stdClass $cache) {
     drupal_add_http_header($name, $value);
   }
 
-  $default_headers['Last-Modified'] = gmdate(DATE_RFC1123, $cache->created);
+  $default_headers['Last-Modified'] = gmdate(DATE_RFC7231, $cache->created);
 
   // HTTP/1.0 proxies does not support the Vary header, so prevent any caching
   // by sending an Expires date in the past. HTTP/1.1 clients ignores the
@@ -2229,79 +2238,80 @@ function drupal_anonymous_user() {
  *   The most recently completed phase.
  */
 function drupal_bootstrap($phase = NULL, $new_phase = TRUE) {
-  // Not drupal_static(), because does not depend on any run-time information.
-  static $phases = array(
-    DRUPAL_BOOTSTRAP_CONFIGURATION,
-    DRUPAL_BOOTSTRAP_PAGE_CACHE,
-    DRUPAL_BOOTSTRAP_DATABASE,
-    DRUPAL_BOOTSTRAP_VARIABLES,
-    DRUPAL_BOOTSTRAP_SESSION,
-    DRUPAL_BOOTSTRAP_PAGE_HEADER,
-    DRUPAL_BOOTSTRAP_LANGUAGE,
-    DRUPAL_BOOTSTRAP_FULL,
-  );
-  // Not drupal_static(), because the only legitimate API to control this is to
-  // call drupal_bootstrap() with a new phase parameter.
-  static $final_phase;
-  // Not drupal_static(), because it's impossible to roll back to an earlier
-  // bootstrap state.
-  static $stored_phase = -1;
+    // Not drupal_static(), because does not depend on any run-time information.
+    static $phases = array(
+        DRUPAL_BOOTSTRAP_CONFIGURATION,
+        DRUPAL_BOOTSTRAP_PAGE_CACHE,
+        DRUPAL_BOOTSTRAP_DATABASE,
+        DRUPAL_BOOTSTRAP_VARIABLES,
+        DRUPAL_BOOTSTRAP_SESSION,
+        DRUPAL_BOOTSTRAP_PAGE_HEADER,
+        DRUPAL_BOOTSTRAP_LANGUAGE,
+        DRUPAL_BOOTSTRAP_FULL,
+    );
+    // Not drupal_static(), because the only legitimate API to control this is to
+    // call drupal_bootstrap() with a new phase parameter.
+    static $final_phase;
+    // Not drupal_static(), because it's impossible to roll back to an earlier
+    // bootstrap state.
+    static $stored_phase = -1;
 
-  // When not recursing, store the phase name so it's not forgotten while
-  // recursing.
-  if ($new_phase) {
-    $final_phase = $phase;
-  }
-  if (isset($phase)) {
-    // Call a phase if it has not been called before and is below the requested
-    // phase.
-    while ($phases && $phase > $stored_phase && $final_phase > $stored_phase) {
-      $current_phase = array_shift($phases);
+    if (isset($phase)) {
+        // When not recursing, store the phase name so it's not forgotten while
+        // recursing but take care of not going backwards.
+        if ($new_phase && $phase >= $stored_phase) {
+            $final_phase = $phase;
+        }
 
-      // This function is re-entrant. Only update the completed phase when the
-      // current call actually resulted in a progress in the bootstrap process.
-      if ($current_phase > $stored_phase) {
-        $stored_phase = $current_phase;
-      }
+        // Call a phase if it has not been called before and is below the requested
+        // phase.
+        while ($phases && $phase > $stored_phase && $final_phase > $stored_phase) {
+            $current_phase = array_shift($phases);
 
-      switch ($current_phase) {
-        case DRUPAL_BOOTSTRAP_CONFIGURATION:
-          _drupal_bootstrap_configuration();
-          break;
+            // This function is re-entrant. Only update the completed phase when the
+            // current call actually resulted in a progress in the bootstrap process.
+            if ($current_phase > $stored_phase) {
+                $stored_phase = $current_phase;
+            }
 
-        case DRUPAL_BOOTSTRAP_PAGE_CACHE:
-          _drupal_bootstrap_page_cache();
-          break;
+            switch ($current_phase) {
+                case DRUPAL_BOOTSTRAP_CONFIGURATION:
+                    _drupal_bootstrap_configuration();
+                    break;
 
-        case DRUPAL_BOOTSTRAP_DATABASE:
-          _drupal_bootstrap_database();
-          break;
+                case DRUPAL_BOOTSTRAP_PAGE_CACHE:
+                    _drupal_bootstrap_page_cache();
+                    break;
 
-        case DRUPAL_BOOTSTRAP_VARIABLES:
-          _drupal_bootstrap_variables();
-          break;
+                case DRUPAL_BOOTSTRAP_DATABASE:
+                    _drupal_bootstrap_database();
+                    break;
 
-        case DRUPAL_BOOTSTRAP_SESSION:
-          require_once DRUPAL_ROOT . '/' . variable_get('session_inc', 'core/includes/session.inc');
-          drupal_session_initialize();
-          break;
+                case DRUPAL_BOOTSTRAP_VARIABLES:
+                    _drupal_bootstrap_variables();
+                    break;
 
-        case DRUPAL_BOOTSTRAP_PAGE_HEADER:
-          _drupal_bootstrap_page_header();
-          break;
+                case DRUPAL_BOOTSTRAP_SESSION:
+                    require_once DRUPAL_ROOT . '/' . variable_get('session_inc', 'core/includes/session.inc');
+                    drupal_session_initialize();
+                    break;
 
-        case DRUPAL_BOOTSTRAP_LANGUAGE:
-          drupal_language_initialize();
-          break;
+                case DRUPAL_BOOTSTRAP_PAGE_HEADER:
+                    _drupal_bootstrap_page_header();
+                    break;
 
-        case DRUPAL_BOOTSTRAP_FULL:
-          require_once DRUPAL_ROOT . '/core/includes/common.inc';
-          _drupal_bootstrap_full();
-          break;
-      }
+                case DRUPAL_BOOTSTRAP_LANGUAGE:
+                    drupal_language_initialize();
+                    break;
+
+                case DRUPAL_BOOTSTRAP_FULL:
+                    require_once DRUPAL_ROOT . '/core/includes/common.inc';
+                    _drupal_bootstrap_full();
+                    break;
+            }
+        }
     }
-  }
-  return $stored_phase;
+    return $stored_phase;
 }
 
 /**
@@ -2541,7 +2551,7 @@ function _drupal_bootstrap_page_header() {
  * @see drupal_bootstrap()
  */
 function drupal_get_bootstrap_phase() {
-  return drupal_bootstrap();
+    return drupal_bootstrap(NULL, FALSE);
 }
 
 /**
