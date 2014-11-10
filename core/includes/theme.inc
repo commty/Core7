@@ -2700,6 +2700,7 @@ function template_process_page(&$variables)
     // Generate messages last in order to capture as many as possible for the
     // current page.
     if (!isset($variables['messages'])) {
+        drupal_add_js('misc/alerts.js');
         $variables['messages'] = $variables['show_messages'] ? theme('status_messages') : '';
     }
 }
