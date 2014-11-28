@@ -180,10 +180,9 @@ function image_gd_rotate(stdClass $image, $degrees, $background = NULL) {
  * @see image_crop()
  */
 function image_gd_crop(stdClass $image, $x, $y, $width, $height) {
-    $res = image_gd_create_tmp($image, $width, $height);
-    $white = imagecolorallocate($res, 255, 255, 255);
+  $res = image_gd_create_tmp($image, $width, $height);
 
-  if (!imagecopyresampled($white, $image->resource, 0, 0, $x, $y, $width, $height, $width, $height)) {
+  if (!imagecopyresampled($res, $image->resource, 0, 0, $x, $y, $width, $height, $width, $height)) {
     return FALSE;
   }
 
@@ -312,11 +311,11 @@ function image_gd_create_tmp(stdClass $image, $width, $height) {
     }
   }
   elseif ($image->info['extension'] == 'png') {
-    //imagealphablending($res, FALSE);
-    $transparency = imagecolorallocate($res, 255, 255, 255); //imagecolorallocatealpha($res, 255, 255, 255, 127);
+    imagealphablending($res, FALSE);
+    $transparency = imagecolorallocatealpha($res, 0, 0, 0, 127);
     imagefill($res, 0, 0, $transparency);
-//    imagealphablending($res, TRUE);
-//    imagesavealpha($res, TRUE);
+    imagealphablending($res, TRUE);
+    imagesavealpha($res, TRUE);
   }
   else {
     imagefill($res, 0, 0, imagecolorallocate($res, 255, 255, 255));
