@@ -31,9 +31,9 @@
     <div id="overlay-close-wrapper">
       <a id="overlay-close" href="#" class="overlay-close"><span class="element-invisible"><?php print t('Close overlay'); ?></span></a>
     </div>
+    <?php if ($tabs): ?><h2 class="element-invisible"><?php print t('Primary tabs'); ?></h2><ul id="overlay-tabs"><?php print render($tabs); ?></ul><?php endif; ?>
   </div>
   <div id="overlay-content"<?php print $content_attributes; ?>>
     <?php print $page; ?>
-      <a class="footer-brand"  href="http://softformul.com">Softformula - Разработка уникальных интернет-проектов</a>
   </div>
 </div>
