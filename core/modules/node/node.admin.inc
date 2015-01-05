@@ -161,7 +161,7 @@ function node_filter_form() {
   $form['filters'] = array(
     '#type' => 'fieldset',
     '#collapsible' => TRUE,
-    '#collapsed' => TRUE,
+    '#collapsed' => FALSE,
     '#title' => t('Show only items where'),
     '#theme' => 'exposed_filters__node',
   );
