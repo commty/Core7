@@ -1165,7 +1165,7 @@ function system_library() {
   $libraries['jquery'] = array(
     'title' => 'jQuery',
     'website' => 'http://jquery.com',
-    'version' => '1.7.2',
+    'version' => '1.8.2',
     'js' => array(
       'misc/jquery.min.js' => array('group' => JS_LIBRARY, 'weight' => -20),
     ),
