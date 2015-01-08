@@ -4188,7 +4188,7 @@ function drupal_add_js($data = NULL, $options = NULL) {
             array('pathPrefix' => empty($prefix) ? '' : $prefix),
           ),
           'type' => 'setting',
-          'scope' => 'header',
+          'scope' => 'footer',
           'group' => JS_LIBRARY,
           'every_page' => TRUE,
           'weight' => 0,
