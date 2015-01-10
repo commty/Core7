@@ -1889,7 +1889,7 @@ function system_filetransfer_info() {
  */
 function system_init() {
   $path = drupal_get_path('module', 'system');
-  drupal_add_css($path . '/system.css', array('group' => CSS_SYSTEM, 'every_page' => TRUE));
+  drupal_add_css($path . '/system.min.css', array('group' => CSS_SYSTEM, 'every_page' => TRUE));
   if (path_is_admin(current_path())) {
     drupal_add_css($path . '/system.admin.css', array('group' => CSS_SYSTEM));
   }
