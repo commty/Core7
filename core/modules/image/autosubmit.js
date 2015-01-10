@@ -3,16 +3,10 @@
  */
 
 (function ($) {
-    Drupal.behaviors.image = {
-        attach: function(context) {
-            //$('.form-item input.form-submit[value=Drupal.t("Upload")]', context).hide();
-            $('.form-item input.form-file', context).change(function() {
-                $parent = $(this).closest('.form-item');
-                setTimeout(function() {
-                    if(!$('.error', $parent).length) {
-                        $('input.form-submit[value=Drupal.t("Upload")]', $parent).mousedown();
-                    }
-                }, 100);
+    Drupal.behaviors.autoUpload = {
+        attach: function (context, settings) {
+            $('form', context).delegate('input.form-file', 'change', function() {
+                $(this).next('input[type="submit"]').mousedown();
             });
         }
     };
