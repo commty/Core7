@@ -1477,9 +1477,14 @@ function theme_get_setting($setting_name, $theme = NULL)
             }
 
             // Generate the path to the logo image.
+            global $base_url;
             if ($cache[$theme]['toggle_logo']) {
                 if ($cache[$theme]['default_logo']) {
-                    $cache[$theme]['logo'] = file_create_url(dirname($theme_object->filename) . '/logo.png');
+                    if (file_exists($logo = dirname($theme_object->filename) . '/logo.png')) {
+                        $cache[$theme]['logo'] = $base_url . DIRECTORY_SEPARATOR . $logo;
+                    } else {
+                        $cache[$theme]['logo'] = file_create_url($base_url .'/logo.png');
+                    }
                 } elseif ($cache[$theme]['logo_path']) {
                     $cache[$theme]['logo'] = file_create_url($cache[$theme]['logo_path']);
                 }
@@ -1491,7 +1496,7 @@ function theme_get_setting($setting_name, $theme = NULL)
                     if (file_exists($favicon = dirname($theme_object->filename) . '/favicon.ico')) {
                         $cache[$theme]['favicon'] = file_create_url($favicon);
                     } else {
-                        $cache[$theme]['favicon'] = file_create_url('/favicon.ico');
+                        $cache[$theme]['favicon'] = file_create_url($base_url . '/favicon.ico');
                     }
                 } elseif ($cache[$theme]['favicon_path']) {
                     $cache[$theme]['favicon'] = file_create_url($cache[$theme]['favicon_path']);
