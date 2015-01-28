@@ -8,11 +8,12 @@ body {
   font: normal 81.3%/1.538em "Lucida Grande", "Lucida Sans Unicode", sans-serif;
 }
 a {
-  color: #0074BD;
+  color: #2fa0ec;
   text-decoration: none;
 }
-a:hover {
+a:hover, a:focus {
   text-decoration: underline;
+
 }
 hr {
   margin: 0;
@@ -185,8 +186,8 @@ pre {
   overflow: hidden;
   padding: 20px 20px 0 20px; /* LTR */
   position: relative;
-  background-color: #34495e;
-  color: #fff !important;
+  background-color: rgba(181, 183, 188, 0.3);
+  color: #34495e;
 }
 #branding div.breadcrumb {
   font-size: 0.846em;
@@ -194,14 +195,14 @@ pre {
 }
 
 #branding div.breadcrumb a, #branding div.breadcrumb a:hover {
-    color: #fff;
+    color: #34495e;
 }
 #branding div.block {
   position: relative;
   float: right; /* LTR */
   width: 240px;
   padding-left: 10px; /* LTR */
-  background: #333;
+  background: #34495e;
 }
 #branding div.block form label {
   display: none;
@@ -239,11 +240,10 @@ pre {
  * Page title.
  */
 #page-title {
-  background: #333;
+  background: #34495e;
   padding-top: 20px;
 }
 #branding h1.page-title {
-  color: #fff;
   margin: 0;
   padding-bottom: 10px;
   font-size: 1.385em;
@@ -287,7 +287,7 @@ ul.primary li.active a {
   line-height: 2.60em;
   padding: 0 18px 8px;
   background-color: #a6a7a2;
-  color: #000;
+  color: #34495e;
   font-weight: bold;
   border-width: 1px 1px 0 1px;
   border-style: solid;
@@ -308,7 +308,7 @@ ul.primary li a:hover {
   color: #fff;
 }
 ul.primary li.active a:hover {
-  color: #000;
+  color: #333;
 }
 .tabs-secondary {
   clear: both;
@@ -327,7 +327,7 @@ ul.secondary li {
 }
 ul.secondary li a {
   background-color: #ddd;
-  color: #000;
+  color: #34495e;
   display: inline-block;
 }
 ul.secondary li a,
@@ -358,7 +358,7 @@ ul.secondary li.active a.active {
   margin-left: 40px; /* LTR */
   background: #fff;
   position: relative;
-  color: #333;
+  color: #34495e;
 }
 #secondary-links ul.links li {
   padding: 0 10px 10px 0; /* LTR */
@@ -388,7 +388,7 @@ ul.inline li {
 }
 #secondary-links ul.links li.active-trail a,
 #secondary-links ul.links li a.active {
-  background: #333;
+  background: #34495e;
 }
 ul.admin-list li {
   position: relative;
@@ -444,23 +444,28 @@ div.submitted {
  */
 table {
   width: 100%;
+  max-width: 100%;
   font-size: 0.923em;
   margin: 0 0 10px;
   border: 1px solid #bebfb9;
+  border-top: 0;
+}
+table thead {
+  border-bottom: 2px solid #ddd;
 }
 table td,
 table th {
   vertical-align: middle;
   padding: 8px 10px;
   border: 0;
-  color: #000;
+  color: #34495e;
 }
 tr.even,
 tr.odd {
   border-width: 0 1px 0 1px;
   border-style: solid;
   border-color: #bebfb9;
-  background: #f3f4ee;
+  background: #d9edf7;
 }
 tr.odd {
   background: #fff;
@@ -473,12 +478,13 @@ tr.drag-previous {
 }
 table th {
   text-transform: uppercase;
-  background: #e1e2dc;
+  /*background: #e1e2dc;*/
   font-weight: normal;
-  border-width: 1px;
-  border-style: solid;
-  border-color: #bebfb9;
+  /*border-width: 1px;*/
+  /*border-style: solid;*/
+  /*border-color: #bebfb9;*/
   padding: 3px 10px;
+  border-top: 0;
 }
 /**
  * Force browsers to calculate the width of a 'select all' TH element.
@@ -487,7 +493,7 @@ table th.select-all {
   width: 1px;
 }
 table th.active {
-  background: #bdbeb9;
+  /*background: #bdbeb9;*/
 }
 table th a {
   display: block;
@@ -654,22 +660,17 @@ body div.form-type-checkbox div.description {
 input.form-submit,
 a.button {
   cursor: pointer;
-  padding: 4px 17px;
-  margin-bottom: 1em;
-  margin-right: 1em; /* LTR */
-  color: #5a5a5a;
-  text-align: center;
-  font-weight: normal;
-  font-size: 1.077em;
-  font-family: "Lucida Grande", Verdana, sans-serif;
-  border: 1px solid #e4e4e4;
-  border-bottom: 1px solid #b4b4b4;
-  border-left-color: #d2d2d2;
-  border-right-color: #d2d2d2;
-  background: url(images/buttons.png) 0 0 repeat-x;
-  -moz-border-radius: 20px;
-  -webkit-border-radius: 20px;
-  border-radius: 20px;
+  padding: 4px 20px;
+  border-radius: 3px;
+  /*background: #446DB2;*/
+  background: #446DB2;
+  display: inline-block;
+  color: #fff;
+  position: relative;
+  top: 5px;
+  margin-right: 1em;
+  font-size: 15px;
+  line-height: 25px;
 }
 a.button:link,
 a.button:visited,
@@ -679,9 +680,7 @@ a.button:active {
   color: #5a5a5a;
 }
 input.form-submit:active {
-  background: #666;
-  color: #fff;
-  border-color: #555;
+  background: #446DB2;
   text-shadow: #222 0 -1px 0;
 }
 input.form-button-disabled,
@@ -696,17 +695,25 @@ input.form-text,
 input.form-file,
 textarea.form-textarea,
 select.form-select {
-  padding: 2px;
-  border: 1px solid #ccc;
-  border-top-color: #999;
-  background: #fff;
-  color: #333;
+  background-color: #F8F8F8;
+  border: 1px solid #DADADA !important;
+  color: #34495e;
+  display: inline;
+  height: 30px;
+  padding: 0 0 0 6px;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+}
+
+textarea.form-textarea {
+  min-height: 120px;
 }
 input.form-text:focus,
 input.form-file:focus,
 textarea.form-textarea:focus,
 select.form-select:focus {
-  color: #000;
+  color: #34495e;
   border-color: #ace;
 }
 html.js input.form-autocomplete {
@@ -975,7 +982,7 @@ div.add-or-remove-shortcuts {
 }
 #overlay-disable-message a,
 #overlay-disable-message a:visited {
-  color: #000;
+  color: #34495e;
 }
 #overlay-disable-message a:focus,
 #overlay-disable-message a:active {
@@ -1074,14 +1081,14 @@ div.add-or-remove-shortcuts {
     font-size: 15px;
     font-weight: bold;
     line-height: 1;
-    color: #000;
+    color: #34495e;
     text-shadow: 0 1px 0 #fff;
     filter: alpha(opacity=20);
     opacity: .2;
 }
 .close:hover,
 .close:focus {
-    color: #000;
+    color: #34495e;
     text-decoration: none;
     cursor: pointer;
     filter: alpha(opacity=50);
