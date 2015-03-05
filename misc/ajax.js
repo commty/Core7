@@ -19,22 +19,29 @@
      */
     Drupal.behaviors.AJAX = {
         attach: function (context, settings) {
-            // Load all Ajax behaviors specified in the settings.
-            for (var base in settings.ajax) {
-                if (!$('#' + base + '.ajax-processed').length) {
-                    var element_settings = settings.ajax[base];
 
-                    if (typeof element_settings.selector == 'undefined') {
-                        element_settings.selector = '#' + base;
-                    }
-                    $(element_settings.selector).each(function () {
-                        element_settings.element = this;
-                        Drupal.ajax[base] = new Drupal.ajax(base, this, element_settings);
-                    });
+     function loadAjaxBehaviour(base) {
+      if (!$('#' + base + '.ajax-processed').length) {
+        var element_settings = settings.ajax[base];
 
-                    $('#' + base).addClass('ajax-processed');
-                }
-            }
+        if (typeof element_settings.selector == 'undefined') {
+          element_settings.selector = '#' + base;
+        }
+        $(element_settings.selector).each(function () {
+          element_settings.element = this;
+            Drupal.ajax[base] = new Drupal.ajax(base, this, element_settings);
+        });
+
+        $('#' + base).addClass('ajax-processed');
+      }
+    }
+
+    // Load all Ajax behaviors specified in the settings.
+    for (var base in settings.ajax) {
+      if (settings.ajax.hasOwnProperty(base)) {
+        loadAjaxBehaviour(base);
+      }
+    }
 
             // Bind Ajax behaviors to all items showing the class.
             $('.use-ajax:not(.ajax-processed)').addClass('ajax-processed').each(function () {
@@ -110,36 +117,51 @@
             },
             submit: {
                 'js': true
-            }
+    },
+    currentRequests: []
         };
 
         $.extend(this, defaults, element_settings);
 
+  // @todo Remove this after refactoring the PHP code to:
+  //   - Call this 'selector'.
+  //   - Include the '#' for ID-based selectors.
+  //   - Support non-ID-based selectors.
+  if (this.wrapper) {
+    this.wrapper = '#' + this.wrapper;
+  }
+
         this.element = element;
         this.element_settings = element_settings;
 
-        // Replacing 'nojs' with 'ajax' in the URL allows for an easy method to let
-        // the server detect when it needs to degrade gracefully.
-        // There are five scenarios to check for:
-        // 1. /nojs/
-        // 2. /nojs$ - The end of a URL string.
-        // 3. /nojs? - Followed by a query (with clean URLs enabled).
-        //      E.g.: path/nojs?destination=foobar
-        // 4. /nojs& - Followed by a query (without clean URLs enabled).
-        //      E.g.: ?q=path/nojs&destination=foobar
-        // 5. /nojs# - Followed by a fragment.
-        //      E.g.: path/nojs#myfragment
-        this.url = element_settings.url.replace(/\/nojs(\/|$|\?|&|#)/g, '/ajax$1');
-        this.wrapper = '#' + element_settings.wrapper;
+  // If there isn't a form, jQuery.ajax() will be used instead, allowing us to
+  // bind Ajax to links as well.
+  if (this.element.form) {
+    this.form = $(this.element.form);
+  }
 
-        // If there isn't a form, jQuery.ajax() will be used instead, allowing us to
-        // bind Ajax to links as well.
-        if (this.element.form) {
-            this.form = $(this.element.form);
-        }
+  // If no Ajax callback URL was given, use the link href or form action.
+  if (!this.url) {
+    if ($(element).is('a')) {
+      this.url = $(element).attr('href');
+    }
+    else if (element.form) {
+      this.url = this.form.attr('action');
+    }
+  }
+
+  // Replacing 'nojs' with 'ajax' in the URL allows for an easy method to let
+  // the server detect when it needs to degrade gracefully.
+  // There are five scenarios to check for:
+  // 1. /nojs/
+  // 2. /nojs$ - The end of a URL string.
+  // 3. /nojs? - Followed by a query (e.g. path/nojs?destination=foobar).
+  // 4. /nojs# - Followed by a fragment (e.g.: path/nojs#myfragment).
+  this.url = this.url.replace(/\/nojs(\/|$|\?|#)/g, '/ajax$1');
 
         // Set the options for the ajaxSubmit function.
         // The 'this' variable will not persist inside of the options object.
+  var currentAjaxRequestNumber = 0;
         var ajax = this;
         ajax.options = {
             url: ajax.url,
@@ -151,25 +173,32 @@
                 ajax.ajaxing = true;
                 return ajax.beforeSubmit(form_values, element_settings, options);
             },
-            beforeSend: function (xmlhttprequest, options) {
-                ajax.ajaxing = true;
-                return ajax.beforeSend(xmlhttprequest, options);
-            },
-            success: function (response, status) {
-                // Sanity check for browser support (object expected).
-                // When using iFrame uploads, responses must be returned as a string.
-                if (typeof response == 'string') {
-                    response = $.parseJSON(response);
-                }
-                return ajax.success(response, status);
-            },
-            complete: function (response, status) {
-                ajax.ajaxing = false;
-                if (status == 'error' || status == 'parsererror') {
-                    return ajax.error(response, ajax.url);
-                }
-            },
-            dataType: 'json',
+    beforeSend: function (jqXHR, options) {
+      jqXHR.ajaxRequestNumber = ++currentAjaxRequestNumber;
+      return ajax.beforeSend(jqXHR, options);
+    },
+    success: function (response, status, jqXHR) {
+      // Skip success if this request has been superseded by a later request.
+      if (jqXHR.ajaxRequestNumber < currentAjaxRequestNumber) {
+        return false;
+      }
+      // Sanity check for browser support (object expected).
+      // When using iFrame uploads, responses must be returned as a string.
+      if (typeof response == 'string') {
+        response = $.parseJSON(response);
+      }
+      return ajax.success(response, status, jqXHR);
+    },
+    complete: function (jqXHR, status) {
+      ajax.cleanUp(jqXHR);
+      if (status == 'error' || status == 'parsererror') {
+        return ajax.error(jqXHR, ajax.url);
+      }
+    },
+    dataType: 'json',
+    accepts: {
+      json: element_settings.accepts || 'application/vnd.drupal-ajax'
+    },
             type: 'POST'
         };
 
@@ -231,45 +260,37 @@
         // Create a synonym for this to reduce code confusion.
         var ajax = this;
 
-        // Do not perform another ajax command if one is already in progress.
-        if (ajax.ajaxing) {
-            return false;
-        }
+  try {
+    if (ajax.form) {
+      // If setClick is set, we must set this to ensure that the button's
+      // value is passed.
+      if (ajax.setClick) {
+        // Mark the clicked button. 'form.clk' is a special variable for
+        // ajaxSubmit that tells the system which element got clicked to
+        // trigger the submit. Without it there would be no 'op' or
+        // equivalent.
+        element.form.clk = element;
+      }
 
-        try {
-            if (ajax.form) {
-                // If setClick is set, we must set this to ensure that the button's
-                // value is passed.
-                if (ajax.setClick) {
-                    // Mark the clicked button. 'form.clk' is a special variable for
-                    // ajaxSubmit that tells the system which element got clicked to
-                    // trigger the submit. Without it there would be no 'op' or
-                    // equivalent.
-                    element.form.clk = element;
-                }
+      ajax.form.ajaxSubmit(ajax.options);
+    }
+    else {
+      ajax.beforeSerialize(ajax.element, ajax.options);
+      $.ajax(ajax.options);
+    }
+  }
+  catch (e) {
+    $.error("An error occurred while attempting to process " + ajax.options.url + ": " + e.message);
+  }
 
-                ajax.form.ajaxSubmit(ajax.options);
-            }
-            else {
-                ajax.beforeSerialize(ajax.element, ajax.options);
-                $.ajax(ajax.options);
-            }
-        }
-        catch (e) {
-            // Unset the ajax.ajaxing flag here because it won't be unset during
-            // the complete response.
-            ajax.ajaxing = false;
-            alert("An error occurred while attempting to process " + ajax.options.url + ": " + e.message);
-        }
-
-        // For radio/checkbox, allow the default event. On IE, this means letting
-        // it actually check the box.
-        if (typeof element.type != 'undefined' && (element.type == 'checkbox' || element.type == 'radio')) {
-            return true;
-        }
-        else {
-            return false;
-        }
+  // For radio/checkbox, allow the default event. On IE, this means letting
+  // it actually check the box.
+  if (typeof element.type != 'undefined' && (element.type == 'checkbox' || element.type == 'radio')) {
+    return true;
+  }
+  else {
+    return false;
+  }
 
     };
 
@@ -302,13 +323,18 @@
         // @see ajax_base_page_theme()
         // @see drupal_get_css()
         // @see drupal_get_js()
-        options.data['ajax_page_state[theme]'] = Drupal.settings.ajaxPageState.theme;
-        options.data['ajax_page_state[theme_token]'] = Drupal.settings.ajaxPageState.theme_token;
-        for (var key in Drupal.settings.ajaxPageState.css) {
-            options.data['ajax_page_state[css][' + key + ']'] = 1;
+        var pageState = Drupal.settings.ajaxPageState;
+        options.data['ajax_page_state[theme]'] = pageState.theme;
+        options.data['ajax_page_state[theme_token]'] = pageState.theme_token;
+        for (var cssFile in pageState.css) {
+            if (pageState.css.hasOwnProperty(cssFile)) {
+                options.data['ajax_page_state[css][' + cssFile + ']'] = 1;
+            }
         }
-        for (var key in Drupal.settings.ajaxPageState.js) {
-            options.data['ajax_page_state[js][' + key + ']'] = 1;
+        for (var jsFile in pageState.js) {
+            if (pageState.js.hasOwnProperty(jsFile)) {
+                options.data['ajax_page_state[js][' + jsFile + ']'] = 1;
+            }
         }
     };
 
@@ -323,7 +349,7 @@
     /**
      * Prepare the Ajax request before it is sent.
      */
-    Drupal.ajax.prototype.beforeSend = function (xmlhttprequest, options) {
+    Drupal.ajax.prototype.beforeSend = function (jqXHR, options) {
         // For forms without file inputs, the jQuery Form plugin serializes the form
         // values, and then calls jQuery's $.ajax() function, which invokes this
         // handler. In this circumstance, options.extraData is never used. For forms
@@ -354,9 +380,9 @@
 
         // Disable the element that received the change to prevent user interface
         // interaction while the Ajax request is in progress. ajax.ajaxing prevents
-        // the element from triggering a new request, but does not prevent the user
-        // from changing its value.
-        $(this.element).addClass('progress-disabled').attr('disabled', true);
+        if (options.disable !== false) {
+            $(this.element).addClass('progress-disabled').prop('disabled', true);
+         }
 
         // Insert progressbar or throbber.
         if (this.progress.type == 'bar') {
@@ -367,39 +393,36 @@
             if (this.progress.url) {
                 progressBar.startMonitoring(this.progress.url, this.progress.interval || 1500);
             }
-            this.progress.element = $(progressBar.element).addClass('ajax-progress ajax-progress-bar');
-            this.progress.object = progressBar;
-            $(this.element).after(this.progress.element);
-        }
-        else if (this.progress.type == 'throbber') {
-            this.progress.element = $('<div class="ajax-progress ajax-progress-throbber"><div class="throbber">&nbsp;</div></div>');
-            if (this.progress.message) {
-                $('.throbber', this.progress.element).after('<div class="message">' + this.progress.message + '</div>');
-            }
-            $(this.element).after(this.progress.element);
-        }
-    };
+    jqXHR.progressElement = $(progressBar.element).addClass('ajax-progress ajax-progress-bar');
+    jqXHR.progressBar = progressBar;
+    $(this.element).after(jqXHR.progressElement);
+  }
+  else if (this.progress.type == 'throbber') {
+    jqXHR.progressElement = $('<div class="ajax-progress ajax-progress-throbber"><div class="throbber">&nbsp;</div></div>');
+    if (this.progress.message) {
+      $('.throbber', jqXHR.progressElement).after('<div class="message">' + this.progress.message + '</div>');
+    }
+    $(this.element).after(jqXHR.progressElement);
+  }
+
+  // Register the AJAX request so it can be cancelled if needed.
+  this.currentRequests.push(jqXHR);
+};
 
     /**
      * Handler for the form redirection completion.
      */
-    Drupal.ajax.prototype.success = function (response, status) {
-        // Remove the progress element.
-        if (this.progress.element) {
-            $(this.progress.element).remove();
-        }
-        if (this.progress.object) {
-            this.progress.object.stopMonitoring();
-        }
-        $(this.element).removeClass('progress-disabled').removeAttr('disabled');
+    Drupal.ajax.prototype.success = function (response, status, jqXHR) {
+  // Remove the throbber and progress elements.
+  this.cleanUp(jqXHR);
 
         Drupal.freezeHeight();
 
         for (var i in response) {
-            if (response.hasOwnProperty(i) && response[i]['command'] && this.commands[response[i]['command']]) {
-                this.commands[response[i]['command']](this, response[i], status);
-            }
-        }
+    if (response.hasOwnProperty(i) && response[i].command && this.commands[response[i].command]) {
+       this.commands[response[i].command](this, response[i], status);
+    }
+  }
 
         // Reattach behaviors, if they were detached in beforeSerialize(). The
         // attachBehaviors() called on the new content from processing the response
@@ -412,12 +435,34 @@
 
         Drupal.unfreezeHeight();
 
-        // Remove any response-specific settings so they don't get used on the next
-        // call by mistake.
-        this.settings = null;
-    };
+  // Remove any response-specific settings so they don't get used on the next
+  // call by mistake.
+  this.settings = null;
+};
 
-    /**
+/**
+ * Clean up after an AJAX response, success or failure.
+ */
+Drupal.ajax.prototype.cleanUp = function (jqXHR) {
+  // Remove the AJAX request from the current list.
+  var index = this.currentRequests.indexOf(jqXHR);
+  if (index > -1) {
+    this.currentRequests.splice(index, 1);
+  }
+
+  // Remove the progress element.
+  if (jqXHR.progressElement) {
+    $(jqXHR.progressElement).remove();
+  }
+  if (jqXHR.progressBar) {
+    jqXHR.progressBar.stopMonitoring();
+  }
+
+  // Reactivate the triggering element.
+  $(this.element).removeClass('progress-disabled').prop('disabled', false);
+}
+
+/**
      * Build an effect object which tells us how to apply the effect when adding new HTML.
      */
     Drupal.ajax.prototype.getEffect = function (response) {
@@ -447,19 +492,8 @@
     /**
      * Handler for the form redirection error.
      */
-    Drupal.ajax.prototype.error = function (response, uri) {
-        alert(Drupal.ajaxError(response, uri));
-        // Remove the progress element.
-        if (this.progress.element) {
-            $(this.progress.element).remove();
-        }
-        if (this.progress.object) {
-            this.progress.object.stopMonitoring();
-        }
-        // Undo hide.
-        $(this.wrapper).show();
-        // Re-enable the element.
-        $(this.element).removeClass('progress-disabled').removeAttr('disabled');
+    Drupal.ajax.prototype.error = function (jqXHR, uri) {
+  this.cleanUp(jqXHR);
         // Reattach behaviors, if they were detached in beforeSerialize().
         if (this.form) {
             var settings = response.settings || this.settings || Drupal.settings;
@@ -486,8 +520,8 @@
             // $(response.data) as new HTML rather than a CSS selector. Also, if
             // response.data contains top-level text nodes, they get lost with either
             // $(response.data) or $('<div></div>').replaceWith(response.data).
-            var new_content_wrapped = $('<div></div>').html(response.data);
-            var new_content = new_content_wrapped.contents();
+    var new_content_wrapped = $('<div></div>').html(response.data.replace(/^\s+|\s+$/g, ''));
+    var new_content = new_content_wrapped.contents();
 
             // For legacy reasons, the effects processing code assumes that new_content
             // consists of a single top-level element. Also, it has not been
@@ -559,7 +593,7 @@
             if (!$(response.selector).hasClass('ajax-changed')) {
                 $(response.selector).addClass('ajax-changed');
                 if (response.asterisk) {
-                    $(response.selector).find(response.asterisk).append(' <span class="ajax-changed">*</span> ');
+        $(response.selector).find(response.asterisk).append(' <abbr class="ajax-changed" title="' + Drupal.t('Changed') + '">*</abbr> ');
                 }
             }
         },
@@ -568,8 +602,15 @@
          * Command to provide an alert.
          */
         alert: function (ajax, response, status) {
-            alert(response.text, response.title);
+            window.alert(response.text, response.title);
         },
+
+  /**
+   * Command to set the window.location, redirecting the browser.
+   */
+  redirect: function (ajax, response, status) {
+    window.location = response.url;
+  },
 
         /**
          * Command to provide the jQuery css() function.
@@ -602,7 +643,7 @@
          */
         invoke: function (ajax, response, status) {
             var $element = $(response.selector);
-            $element[response.method].apply($element, response.arguments);
+            $element[response.method].apply($element, response.args);
         },
 
         /**
@@ -625,7 +666,7 @@
          * support that method ignore @import statements in dynamically added
          * stylesheets.
          */
-        add_css: function (ajax, response, status) {
+        addCss: function (ajax, response, status) {
             // Add the styles in the normal way.
             $('head').prepend(response.data);
             // Add imports in the styles using the addImport method if available.
@@ -646,4 +687,4 @@
         }
     };
 
-})(jQuery);
+})(jQuery, this);
