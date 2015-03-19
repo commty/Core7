@@ -189,8 +189,6 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
     }
   }
 
-    dpm($message);
-
   return $message;
 }
 
