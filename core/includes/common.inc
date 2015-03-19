@@ -2198,120 +2198,131 @@ function format_username($account) {
  *   A string containing a URL to the given path.
  */
 function url($path = NULL, array $options = array()) {
-  // Merge in defaults.
-  $options += array(
-    'fragment' => '',
-    'query' => array(),
-    'absolute' => FALSE,
-    'alias' => FALSE,
-    'prefix' => ''
-  );
+    // Merge in defaults.
+    $options += array(
+        'fragment' => '',
+        'query' => array(),
+        'absolute' => FALSE,
+        'alias' => FALSE,
+        'prefix' => ''
+    );
 
-  if (!isset($options['external'])) {
-    // Return an external link if $path contains an allowed absolute URL. Only
-    // call the slow drupal_strip_dangerous_protocols() if $path contains a ':'
-    // before any / ? or #. Note: we could use url_is_external($path) here, but
-    // that would require another function call, and performance inside url() is
-    // critical.
-    $colonpos = strpos($path, ':');
-    $options['external'] = ($colonpos !== FALSE && !preg_match('![/?#]!', substr($path, 0, $colonpos)) && drupal_strip_dangerous_protocols($path) == $path);
-  }
-
-  // Preserve the original path before altering or aliasing.
-  $original_path = $path;
-
-  // Allow other modules to alter the outbound URL and options.
-  drupal_alter('url_outbound', $path, $options, $original_path);
-
-  if (isset($options['fragment']) && $options['fragment'] !== '') {
-    $options['fragment'] = '#' . $options['fragment'];
-  }
-
-  if ($options['external']) {
-    // Split off the fragment.
-    if (strpos($path, '#') !== FALSE) {
-      list($path, $old_fragment) = explode('#', $path, 2);
-      // If $options contains no fragment, take it over from the path.
-      if (isset($old_fragment) && !$options['fragment']) {
-        $options['fragment'] = '#' . $old_fragment;
-      }
+    // A duplicate of the code from url_is_external() to avoid needing another
+    // function call, since performance inside url() is critical.
+    if (!isset($options['external'])) {
+        // Return an external link if $path contains an allowed absolute URL. Avoid
+        // calling drupal_strip_dangerous_protocols() if there is any slash (/),
+        // hash (#) or question_mark (?) before the colon (:) occurrence - if any -
+        // as this would clearly mean it is not a URL. If the path starts with 2
+        // slashes then it is always considered an external URL without an explicit
+        // protocol part.
+        $colonpos = strpos($path, ':');
+        $options['external'] = (strpos($path, '//') === 0)
+            || ($colonpos !== FALSE
+                && !preg_match('![/?#]!', substr($path, 0, $colonpos))
+                && drupal_strip_dangerous_protocols($path) == $path);
     }
-    // Append the query.
-    if ($options['query']) {
-      $path .= (strpos($path, '?') !== FALSE ? '&' : '?') . drupal_http_build_query($options['query']);
-    }
-    if (isset($options['https']) && variable_get('https', FALSE)) {
-      if ($options['https'] === TRUE) {
-        $path = str_replace('http://', 'https://', $path);
-      }
-      elseif ($options['https'] === FALSE) {
-        $path = str_replace('https://', 'http://', $path);
-      }
-    }
-    // Reassemble.
-    return $path . $options['fragment'];
-  }
 
-  global $base_url, $base_secure_url, $base_insecure_url;
+    // Preserve the original path before altering or aliasing.
+    $original_path = $path;
 
-  // The base_url might be rewritten from the language rewrite in domain mode.
-  if (!isset($options['base_url'])) {
-    if (isset($options['https']) && variable_get('https', FALSE)) {
-      if ($options['https'] === TRUE) {
-        $options['base_url'] = $base_secure_url;
-        $options['absolute'] = TRUE;
-      }
-      elseif ($options['https'] === FALSE) {
-        $options['base_url'] = $base_insecure_url;
-        $options['absolute'] = TRUE;
-      }
+    // Allow other modules to alter the outbound URL and options.
+    drupal_alter('url_outbound', $path, $options, $original_path);
+
+    if (isset($options['fragment']) && $options['fragment'] !== '') {
+        $options['fragment'] = '#' . $options['fragment'];
     }
+
+    if ($options['external']) {
+        // Split off the fragment.
+        if (strpos($path, '#') !== FALSE) {
+            list($path, $old_fragment) = explode('#', $path, 2);
+            // If $options contains no fragment, take it over from the path.
+            if (isset($old_fragment) && !$options['fragment']) {
+                $options['fragment'] = '#' . $old_fragment;
+            }
+        }
+        // Append the query.
+        if ($options['query']) {
+            $path .= (strpos($path, '?') !== FALSE ? '&' : '?') . drupal_http_build_query($options['query']);
+        }
+        if (isset($options['https']) && variable_get('https', FALSE)) {
+            if ($options['https'] === TRUE) {
+                $path = str_replace('http://', 'https://', $path);
+            }
+            elseif ($options['https'] === FALSE) {
+                $path = str_replace('https://', 'http://', $path);
+            }
+        }
+        // Reassemble.
+        return $path . $options['fragment'];
+    }
+
+    // Strip leading slashes from internal paths to prevent them becoming external
+    // URLs without protocol. /example.com should not be turned into
+    // //example.com.
+    $path = ltrim($path, '/');
+
+    global $base_url, $base_secure_url, $base_insecure_url;
+
+    // The base_url might be rewritten from the language rewrite in domain mode.
+    if (!isset($options['base_url'])) {
+        if (isset($options['https']) && variable_get('https', FALSE)) {
+            if ($options['https'] === TRUE) {
+                $options['base_url'] = $base_secure_url;
+                $options['absolute'] = TRUE;
+            }
+            elseif ($options['https'] === FALSE) {
+                $options['base_url'] = $base_insecure_url;
+                $options['absolute'] = TRUE;
+            }
+        }
+        else {
+            $options['base_url'] = $base_url;
+        }
+    }
+
+    // The special path '<front>' links to the default front page.
+    if ($path == '<front>') {
+        $path = '';
+    }
+    elseif (!empty($path) && !$options['alias']) {
+        $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
+        $alias = drupal_get_path_alias($original_path, $language);
+        if ($alias != $original_path) {
+            $path = $alias;
+        }
+    }
+
+    $base = $options['absolute'] ? $options['base_url'] . '/' : base_path();
+    $prefix = empty($path) ? rtrim($options['prefix'], '/') : $options['prefix'];
+
+    // With Clean URLs.
+    if (!empty($GLOBALS['conf']['clean_url'])) {
+        $path = drupal_encode_path($prefix . $path);
+        if ($options['query']) {
+            return $base . $path . '?' . drupal_http_build_query($options['query']) . $options['fragment'];
+        }
+        else {
+            return $base . $path . $options['fragment'];
+        }
+    }
+    // Without Clean URLs.
     else {
-      $options['base_url'] = $base_url;
+        $path = $prefix . $path;
+        $query = array();
+        if (!empty($path)) {
+            $query['q'] = $path;
+        }
+        if ($options['query']) {
+            // We do not use array_merge() here to prevent overriding $path via query
+            // parameters.
+            $query += $options['query'];
+        }
+        $query = $query ? ('?' . drupal_http_build_query($query)) : '';
+        $script = isset($options['script']) ? $options['script'] : '';
+        return $base . $script . $query . $options['fragment'];
     }
-  }
-
-  // The special path '<front>' links to the default front page.
-  if ($path == '<front>') {
-    $path = '';
-  }
-  elseif (!empty($path) && !$options['alias']) {
-    $language = isset($options['language']) && isset($options['language']->language) ? $options['language']->language : '';
-    $alias = drupal_get_path_alias($original_path, $language);
-    if ($alias != $original_path) {
-      $path = $alias;
-    }
-  }
-
-  $base = $options['absolute'] ? $options['base_url'] . '/' : base_path();
-  $prefix = empty($path) ? rtrim($options['prefix'], '/') : $options['prefix'];
-
-  // With Clean URLs.
-  if (!empty($GLOBALS['conf']['clean_url'])) {
-    $path = drupal_encode_path($prefix . $path);
-    if ($options['query']) {
-      return $base . $path . '?' . drupal_http_build_query($options['query']) . $options['fragment'];
-    }
-    else {
-      return $base . $path . $options['fragment'];
-    }
-  }
-  // Without Clean URLs.
-  else {
-    $path = $prefix . $path;
-    $query = array();
-    if (!empty($path)) {
-      $query['q'] = $path;
-    }
-    if ($options['query']) {
-      // We do not use array_merge() here to prevent overriding $path via query
-      // parameters.
-      $query += $options['query'];
-    }
-    $query = $query ? ('?' . drupal_http_build_query($query)) : '';
-    $script = isset($options['script']) ? $options['script'] : '';
-    return $base . $script . $query . $options['fragment'];
-  }
 }
 
 /**
@@ -2328,13 +2339,17 @@ function url($path = NULL, array $options = array()) {
  *   Boolean TRUE or FALSE, where TRUE indicates an external path.
  */
 function url_is_external($path) {
-  $colonpos = strpos($path, ':');
-  // Avoid calling drupal_strip_dangerous_protocols() if there is any
-  // slash (/), hash (#) or question_mark (?) before the colon (:)
-  // occurrence - if any - as this would clearly mean it is not a URL.
-  return $colonpos !== FALSE && !preg_match('![/?#]!', substr($path, 0, $colonpos)) && drupal_strip_dangerous_protocols($path) == $path;
+    $colonpos = strpos($path, ':');
+    // Avoid calling drupal_strip_dangerous_protocols() if there is any slash (/),
+    // hash (#) or question_mark (?) before the colon (:) occurrence - if any - as
+    // this would clearly mean it is not a URL. If the path starts with 2 slashes
+    // then it is always considered an external URL without an explicit protocol
+    // part.
+    return (strpos($path, '//') === 0)
+    || ($colonpos !== FALSE
+        && !preg_match('![/?#]!', substr($path, 0, $colonpos))
+        && drupal_strip_dangerous_protocols($path) == $path);
 }
-
 /**
  * Formats an attribute string for an HTTP header.
  *
@@ -2626,10 +2641,13 @@ function drupal_deliver_html_page($page_callback_result) {
         // Check for and return a fast 404 page if configured.
         drupal_fast_404();
 
-        // Keep old path for reference, and to allow forms to redirect to it.
-        if (!isset($_GET['destination'])) {
-          $_GET['destination'] = $_GET['q'];
-        }
+          // Keep old path for reference, and to allow forms to redirect to it.
+          if (!isset($_GET['destination'])) {
+              // Make sure that the current path is not interpreted as external URL.
+              if (!url_is_external($_GET['q'])) {
+                  $_GET['destination'] = $_GET['q'];
+              }
+          }
 
         $path = drupal_get_normal_path(variable_get('site_404', ''));
         if ($path && $path != $_GET['q']) {
@@ -2655,10 +2673,13 @@ function drupal_deliver_html_page($page_callback_result) {
         drupal_add_http_header('Status', '403 Forbidden');
         watchdog('access denied', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
 
-        // Keep old path for reference, and to allow forms to redirect to it.
-        if (!isset($_GET['destination'])) {
-          $_GET['destination'] = $_GET['q'];
-        }
+          // Keep old path for reference, and to allow forms to redirect to it.
+          if (!isset($_GET['destination'])) {
+              // Make sure that the current path is not interpreted as external URL.
+              if (!url_is_external($_GET['q'])) {
+                  $_GET['destination'] = $_GET['q'];
+              }
+          }
 
         $path = drupal_get_normal_path(variable_get('site_403', ''));
         if ($path && $path != $_GET['q']) {

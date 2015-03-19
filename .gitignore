@@ -7,3 +7,5 @@ sites/*/*settings*.php
 files/
 sites/*/files
 sites/*/private
+
+.idea

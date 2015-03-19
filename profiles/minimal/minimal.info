@@ -15,6 +15,6 @@ dependencies[] = pathauto
 dependencies[] = transliteration
 dependencies[] = admin_menu
 dependencies[] = adminimal_admin_menu
-dependencies[] = ckeditor
+dependencies[] = editor
 dependencies[] = module_filter
 dependencies[] = devel
