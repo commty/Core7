@@ -901,7 +901,7 @@ function drupal_http_request($url, array $options = array()) {
 
   // Merge the default headers.
   $options['headers'] += array(
-    'User-Agent' => 'Core 7',
+    'User-Agent' => 'Drupal (+http://drupal.org/)',
   );
 
   // Only add Content-Length if we actually have any content or if it is a POST
@@ -2198,14 +2198,14 @@ function format_username($account) {
  *   A string containing a URL to the given path.
  */
 function url($path = NULL, array $options = array()) {
-    // Merge in defaults.
-    $options += array(
-        'fragment' => '',
-        'query' => array(),
-        'absolute' => FALSE,
-        'alias' => FALSE,
-        'prefix' => ''
-    );
+  // Merge in defaults.
+  $options += array(
+    'fragment' => '',
+    'query' => array(),
+    'absolute' => FALSE,
+    'alias' => FALSE,
+    'prefix' => ''
+  );
 
     // A duplicate of the code from url_is_external() to avoid needing another
     // function call, since performance inside url() is critical.
@@ -2339,17 +2339,18 @@ function url($path = NULL, array $options = array()) {
  *   Boolean TRUE or FALSE, where TRUE indicates an external path.
  */
 function url_is_external($path) {
-    $colonpos = strpos($path, ':');
-    // Avoid calling drupal_strip_dangerous_protocols() if there is any slash (/),
-    // hash (#) or question_mark (?) before the colon (:) occurrence - if any - as
-    // this would clearly mean it is not a URL. If the path starts with 2 slashes
-    // then it is always considered an external URL without an explicit protocol
-    // part.
-    return (strpos($path, '//') === 0)
+  $colonpos = strpos($path, ':');
+  // Avoid calling drupal_strip_dangerous_protocols() if there is any slash (/),
+  // hash (#) or question_mark (?) before the colon (:) occurrence - if any - as
+  // this would clearly mean it is not a URL. If the path starts with 2 slashes
+  // then it is always considered an external URL without an explicit protocol
+  // part.
+  return (strpos($path, '//') === 0)
     || ($colonpos !== FALSE
-        && !preg_match('![/?#]!', substr($path, 0, $colonpos))
-        && drupal_strip_dangerous_protocols($path) == $path);
+      && !preg_match('![/?#]!', substr($path, 0, $colonpos))
+      && drupal_strip_dangerous_protocols($path) == $path);
 }
+
 /**
  * Formats an attribute string for an HTTP header.
  *
@@ -2641,13 +2642,13 @@ function drupal_deliver_html_page($page_callback_result) {
         // Check for and return a fast 404 page if configured.
         drupal_fast_404();
 
-          // Keep old path for reference, and to allow forms to redirect to it.
-          if (!isset($_GET['destination'])) {
-              // Make sure that the current path is not interpreted as external URL.
-              if (!url_is_external($_GET['q'])) {
-                  $_GET['destination'] = $_GET['q'];
-              }
+        // Keep old path for reference, and to allow forms to redirect to it.
+        if (!isset($_GET['destination'])) {
+          // Make sure that the current path is not interpreted as external URL.
+          if (!url_is_external($_GET['q'])) {
+            $_GET['destination'] = $_GET['q'];
           }
+        }
 
         $path = drupal_get_normal_path(variable_get('site_404', ''));
         if ($path && $path != $_GET['q']) {
@@ -2673,13 +2674,13 @@ function drupal_deliver_html_page($page_callback_result) {
         drupal_add_http_header('Status', '403 Forbidden');
         watchdog('access denied', check_plain($_GET['q']), NULL, WATCHDOG_WARNING);
 
-          // Keep old path for reference, and to allow forms to redirect to it.
-          if (!isset($_GET['destination'])) {
-              // Make sure that the current path is not interpreted as external URL.
-              if (!url_is_external($_GET['q'])) {
-                  $_GET['destination'] = $_GET['q'];
-              }
+        // Keep old path for reference, and to allow forms to redirect to it.
+        if (!isset($_GET['destination'])) {
+          // Make sure that the current path is not interpreted as external URL.
+          if (!url_is_external($_GET['q'])) {
+            $_GET['destination'] = $_GET['q'];
           }
+        }
 
         $path = drupal_get_normal_path(variable_get('site_403', ''));
         if ($path && $path != $_GET['q']) {
@@ -3133,6 +3134,7 @@ function drupal_get_css($css = NULL, $skip_alter = FALSE) {
     '#type' => 'styles',
     '#items' => $css,
   );
+
   if (!empty($setting)) {
     $styles['#attached']['js'][] = array('type' => 'setting', 'data' => $setting);
   }
@@ -4195,7 +4197,7 @@ function drupal_add_js($data = NULL, $options = NULL) {
   $options['weight'] += count($javascript) / 1000;
 
   if (isset($data)) {
-    // Add jquery.js and core.js, as well as the basePath setting, the
+    // Add jquery.js and drupal.js, as well as the basePath setting, the
     // first time a JavaScript file is added.
     if (empty($javascript)) {
       // url() generates the prefix using hook_url_outbound_alter(). Instead of
@@ -4229,7 +4231,6 @@ function drupal_add_js($data = NULL, $options = NULL) {
       // Register all required libraries.
       drupal_add_library('system', 'jquery', TRUE);
       drupal_add_library('system', 'jquery.once', TRUE);
-        //drupal_add_library('system', 'bootstrap', TRUE);
     }
 
     switch ($options['type']) {
@@ -5381,7 +5382,7 @@ function drupal_cron_run() {
 }
 
 /**
- * Shutdown function: Performs cron cleanup.
+ * DEPRECATED: Shutdown function: Performs cron cleanup.
  *
  * @see drupal_cron_run()
  * @see drupal_register_shutdown_function()

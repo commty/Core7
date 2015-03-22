@@ -104,15 +104,14 @@ function system_help($path, $arg) {
       return '<p>' . t('These options control the display settings for the %name theme. When your site is displayed using this theme, these settings will be used.', array('%name' => $theme->info['name'])) . '</p>';
     case 'admin/appearance/settings':
       return '<p>' . t('These options control the default display settings for your entire site, across all themes. Unless they have been overridden by a specific theme, these settings will be used.') . '</p>';
-    case 'admin/modules':
-      //$output = '<p>' . t('Download additional <a href="@modules">contributed modules</a> to extend Drupal\'s functionality.', array('@modules' => 'http://drupal.org/project/modules')) . '</p>';
-        $output = '';
-      return $output;
+//    case 'admin/modules':
+//      $output = '<p>' . t('Download additional <a href="@modules">contributed modules</a> to extend Drupal\'s functionality.', array('@modules' => 'http://drupal.org/project/modules')) . '</p>';
+//      return $output;
     case 'admin/modules/uninstall':
       return '<p>' . t('The uninstall process removes all data related to a module. To uninstall a module, you must first disable it on the main <a href="@modules">Modules page</a>.', array('@modules' => url('admin/modules'))) . '</p>';
     case 'admin/structure/block/manage':
       if ($arg[4] == 'system' && $arg[5] == 'powered-by') {
-        return '<p>' . t('The <em>Powered by Core7</em> block is an optional link to the home page of the Drupal project. While there is absolutely no requirement that sites feature this link, it may be used to show support for Drupal.') . '</p>';
+        return '<p>' . t('The <em>Powered by Drupal</em> block is an optional link to the home page of the Drupal project. While there is absolutely no requirement that sites feature this link, it may be used to show support for Drupal.') . '</p>';
       }
       break;
     case 'admin/config/development/maintenance':
@@ -364,6 +363,9 @@ function system_element_info() {
     '#element_validate' => array('form_validate_machine_name'),
     '#theme' => 'textfield',
     '#theme_wrappers' => array('form_element'),
+    // Use the same value callback as for textfields; this ensures that we only
+    // get string values.
+    '#value_callback' => 'form_type_textfield_value',
   );
   $types['password'] = array(
     '#input' => TRUE,
@@ -372,6 +374,9 @@ function system_element_info() {
     '#process' => array('ajax_process_form'),
     '#theme' => 'password',
     '#theme_wrappers' => array('form_element'),
+    // Use the same value callback as for textfields; this ensures that we only
+    // get string values.
+    '#value_callback' => 'form_type_textfield_value',
   );
   $types['password_confirm'] = array(
     '#input' => TRUE,
@@ -716,7 +721,7 @@ function system_menu() {
   );
   $items['admin/config/media/file-system'] = array(
     'title' => 'File system',
-    'description' => 'Tell Core 7 where to store uploaded files and how they are accessed.',
+    'description' => 'Tell Drupal where to store uploaded files and how they are accessed.',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('system_file_system_settings'),
     'access arguments' => array('administer site configuration'),
@@ -782,7 +787,7 @@ function system_menu() {
   );
   $items['admin/config/development/logging'] = array(
     'title' => 'Logging and errors',
-    'description' => "Settings for logging and alerts modules. Various modules can route Core's system events to different destinations, such as syslog, database, email, etc.",
+    'description' => "Settings for logging and alerts modules. Various modules can route Drupal's system events to different destinations, such as syslog, database, email, etc.",
     'page callback' => 'drupal_get_form',
     'page arguments' => array('system_logging_settings'),
     'access arguments' => array('administer site configuration'),
@@ -2031,7 +2036,7 @@ function system_block_info() {
     'region' => 'content',
   );
   $blocks['powered-by'] = array(
-    'info' => t('Powered by Core 7'),
+    'info' => t('Powered by Drupal'),
     'weight' => '10',
     'cache' => DRUPAL_NO_CACHE,
   );

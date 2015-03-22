@@ -44,14 +44,14 @@ define('MARK_UPDATED', 2);
  *   Boolean TRUE if the theme is enabled or is the site administration theme;
  *   FALSE otherwise.
  */
-function drupal_theme_access($theme)
-{
-    if (is_object($theme)) {
-        return _drupal_theme_access($theme);
-    } else {
-        $themes = list_themes();
-        return isset($themes[$theme]) && _drupal_theme_access($themes[$theme]);
-    }
+function drupal_theme_access($theme) {
+  if (is_object($theme)) {
+    return _drupal_theme_access($theme);
+  }
+  else {
+    $themes = list_themes();
+    return isset($themes[$theme]) && _drupal_theme_access($themes[$theme]);
+  }
 }
 
 /**
@@ -59,8 +59,7 @@ function drupal_theme_access($theme)
  *
  * @see drupal_theme_access()
  */
-function _drupal_theme_access($theme)
-{
+function _drupal_theme_access($theme) {
     $admin_theme = variable_get('admin_theme');
     return !empty($theme->status) || ($admin_theme && $theme->name == $admin_theme);
 }
@@ -68,8 +67,7 @@ function _drupal_theme_access($theme)
 /**
  * Initializes the theme system by loading the theme.
  */
-function drupal_theme_initialize()
-{
+function drupal_theme_initialize() {
     global $theme, $user, $theme_key;
 
     // If $theme is already set, assume the others are set, too, and do nothing
@@ -140,8 +138,7 @@ function drupal_theme_initialize()
  * @param $registry_callback
  *   The callback to invoke to set the theme registry.
  */
-function _drupal_theme_initialize($theme, $base_theme = array(), $registry_callback = '_theme_load_registry')
-{
+function _drupal_theme_initialize($theme, $base_theme = array(), $registry_callback = '_theme_load_registry') {
     global $theme_info, $base_theme_info, $theme_engine, $theme_path;
     $theme_info = $theme;
     $base_theme_info = $base_theme;
@@ -254,8 +251,7 @@ function _drupal_theme_initialize($theme, $base_theme = array(), $registry_callb
  *   The complete theme registry array, or an instance of the ThemeRegistry
  *   class.
  */
-function theme_get_registry($complete = TRUE)
-{
+function theme_get_registry($complete = TRUE) {
     // Use the advanced drupal_static() pattern, since this is called very often.
     static $drupal_static_fast;
     if (!isset($drupal_static_fast)) {
@@ -291,8 +287,7 @@ function theme_get_registry($complete = TRUE)
  * @param $arguments
  *   The arguments to pass to the function.
  */
-function _theme_registry_callback($callback = NULL, array $arguments = array())
-{
+function _theme_registry_callback($callback = NULL, array $arguments = array()) {
     static $stored;
     if (isset($callback)) {
         $stored = array($callback, $arguments);
@@ -317,8 +312,7 @@ function _theme_registry_callback($callback = NULL, array $arguments = array())
  * @return
  *   The theme registry array, or an instance of the ThemeRegistry class.
  */
-function _theme_load_registry($theme, $base_theme = NULL, $theme_engine = NULL, $complete = TRUE)
-{
+function _theme_load_registry($theme, $base_theme = NULL, $theme_engine = NULL, $complete = TRUE) {
     if ($complete) {
         // Check the theme registry cache; if it exists, use it.
         $cached = cache_get("theme_registry:$theme->name");
@@ -384,8 +378,7 @@ class ThemeRegistry Extends DrupalCacheArray
      */
     protected $completeRegistry;
 
-    function __construct($cid, $bin)
-    {
+    function __construct($cid, $bin) {
         $this->cid = $cid;
         $this->bin = $bin;
         $this->persistable = module_load_all(NULL) && $_SERVER['REQUEST_METHOD'] == 'GET';
@@ -413,15 +406,13 @@ class ThemeRegistry Extends DrupalCacheArray
      *   An array with the keys of the full theme registry, but the values
      *   initialized to NULL.
      */
-    function initializeRegistry()
-    {
+    function initializeRegistry() {
         $this->completeRegistry = theme_get_registry();
 
         return array_fill_keys(array_keys($this->completeRegistry), NULL);
     }
 
-    public function offsetExists($offset)
-    {
+    public function offsetExists($offset) {
         // Since the theme registry allows for theme hooks to be requested that
         // are not registered, just check the existence of the key in the registry.
         // Use array_key_exists() here since a NULL value indicates that the theme
@@ -1708,7 +1699,6 @@ function theme_status_messages($variables) {
     else {
       $output .= $messages[0];
     }
-
     $output .= "</div>\n";
   }
   return $output;
@@ -2579,9 +2569,9 @@ function template_preprocess_html(&$variables)
     }
 
     // If on an individual node page, add the node type to body classes.
-//  if ($node = menu_get_object()) {
-//    $variables['classes_array'][] = drupal_html_class('node-type-' . $node->type);
-//  }
+  if ($node = menu_get_object()) {
+    $variables['classes_array'][] = drupal_html_class('node-type-' . $node->type);
+  }
 
     // RDFa allows annotation of XHTML pages with RDF data, while GRDDL provides
     // mechanisms for extraction of this RDF content via XSLT transformation
@@ -2603,10 +2593,10 @@ function template_preprocess_html(&$variables)
     if (drupal_get_title()) {
         $head_title = array(
             'title' => strip_tags(drupal_get_title()),
-            'name' => check_plain(variable_get('site_name', 'Core 7')),
+      'name' => check_plain(variable_get('site_name', 'Drupal')),
         );
     } else {
-        $head_title = array('name' => check_plain(variable_get('site_name', 'Core 7')));
+    $head_title = array('name' => check_plain(variable_get('site_name', 'Drupal')));
         if (variable_get('site_slogan', '')) {
             $head_title['slogan'] = filter_xss_admin(variable_get('site_slogan', ''));
         }
@@ -2705,7 +2695,6 @@ function template_process_page(&$variables)
     // Generate messages last in order to capture as many as possible for the
     // current page.
     if (!isset($variables['messages'])) {
-        drupal_add_js('misc/alerts.js');
         $variables['messages'] = $variables['show_messages'] ? theme('status_messages') : '';
     }
 }

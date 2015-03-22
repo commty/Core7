@@ -525,22 +525,22 @@ function install_tasks($install_state) {
   // to the installation profile.
   $tasks = array(
     'install_select_profile' => array(
-      'display_name' => 'Выбор дистрибутива',
+      'display_name' => st('Choose profile'),
       'display' => count($install_state['profiles']) != 1,
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
     'install_select_locale' => array(
-      'display_name' => 'Выбор языка установки',
+      'display_name' => st('Choose language'),
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
     'install_load_profile' => array(
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
     'install_verify_requirements' => array(
-      'display_name' => 'Проверка окружения',
+      'display_name' => st('Verify requirements'),
     ),
     'install_settings_form' => array(
-      'display_name' => 'Настройка базы данных',
+      'display_name' => st('Set up database'),
       'type' => 'form',
       'run' => $install_state['settings_verified'] ? INSTALL_TASK_SKIP : INSTALL_TASK_RUN_IF_NOT_COMPLETED,
     ),
@@ -550,17 +550,17 @@ function install_tasks($install_state) {
       'run' => INSTALL_TASK_RUN_IF_REACHED,
     ),
     'install_profile_modules' => array(
-      'display_name' => count($install_state['profiles']) == 1 ? st('Install site') : st('Установка сайта'),
+      'display_name' => count($install_state['profiles']) == 1 ? st('Install site') : st('Install profile'),
       'type' => 'batch',
     ),
     'install_import_locales' => array(
-      'display_name' => 'Импорт данных',
+      'display_name' => st('Set up translations'),
       'display' => $needs_translations,
       'type' => 'batch',
       'run' => $needs_translations ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
     ),
     'install_configure_form' => array(
-      'display_name' => 'Настройка сайта',
+      'display_name' => st('Configure site'),
       'type' => 'form',
     ),
   );
@@ -585,13 +585,13 @@ function install_tasks($install_state) {
   // Finish by adding the remaining core tasks.
   $tasks += array(
     'install_import_locales_remaining' => array(
-      'display_name' => 'Последние приготовления',
+      'display_name' => st('Finish translations'),
       'display' => $needs_translations,
       'type' => 'batch',
       'run' => $needs_translations ? INSTALL_TASK_RUN_IF_NOT_COMPLETED : INSTALL_TASK_SKIP,
     ),
     'install_finished' => array(
-      'display_name' => 'Готово',
+      'display_name' => st('Finished'),
     ),
   );
 
@@ -721,7 +721,7 @@ function install_display_output($output, $install_state) {
 }
 
 /**
- * Verifies the requirements for installing Core7.
+ * Verifies the requirements for installing Drupal.
  *
  * @param $install_state
  *   An array of information about the current installation state.
@@ -884,20 +884,20 @@ function install_settings_form($form, &$form_state, &$install_state) {
   $settings_file = $conf_path . '/settings.php';
   $database = isset($databases['default']['default']) ? $databases['default']['default'] : array();
 
-  drupal_set_title('Конфигурация соединения с базой данных');
+  drupal_set_title(st('Database configuration'));
 
   $drivers = drupal_get_database_types();
   $drivers_keys = array_keys($drivers);
 
   $form['driver'] = array(
     '#type' => 'radios',
-    '#title' => 'Тип базы данных',
+    '#title' => st('Database type'),
     '#required' => TRUE,
     '#default_value' => !empty($database['driver']) ? $database['driver'] : current($drivers_keys),
    );
   if (count($drivers) == 1) {
     $form['driver']['#disabled'] = TRUE;
-    $form['driver']['#description'] = ' ' . st('Your PHP configuration only supports a single database type, so it has been automatically selected.');
+    $form['driver']['#description'] .= ' ' . st('Your PHP configuration only supports a single database type, so it has been automatically selected.');
   }
 
   // Add driver specific configuration options.
@@ -919,7 +919,7 @@ function install_settings_form($form, &$form_state, &$install_state) {
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['save'] = array(
     '#type' => 'submit',
-    '#value' => 'Установить',
+    '#value' => st('Save and continue'),
     '#limit_validation_errors' => array(
       array('driver'),
       array(isset($form_state['input']['driver']) ? $form_state['input']['driver'] : current($drivers_keys)),
@@ -1051,7 +1051,7 @@ function install_select_profile(&$install_state) {
       // URL.
       if ($install_state['interactive']) {
         include_once DRUPAL_ROOT . '/core/includes/form.inc';
-        drupal_set_title('Выбор дистрибутива');
+        drupal_set_title(st('Select an installation profile'));
         $form = drupal_get_form('install_select_profile_form', $install_state['profiles']);
         return drupal_render($form);
       }
@@ -1181,7 +1181,7 @@ function install_select_profile_form($form, &$form_state, $profile_files) {
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] =  array(
     '#type' => 'submit',
-    '#value' => 'Далее',
+    '#value' => st('Save and continue'),
   );
   return $form;
 }
@@ -1240,7 +1240,7 @@ function install_select_locale(&$install_state) {
     // is doing.
     if (count($locales) == 1) {
       if ($install_state['interactive']) {
-        drupal_set_title('Выбор языка установки');
+        drupal_set_title(st('Choose language'));
         if (!empty($install_state['parameters']['localize'])) {
           $output = '<p>Follow these steps to translate Drupal into your language:</p>';
           $output .= '<ol>';
@@ -1291,13 +1291,13 @@ function install_select_locale(&$install_state) {
       // yet), rather just a convenience method for setting parameters in the
       // URL.
       if ($install_state['interactive']) {
-        drupal_set_title('Выбор языка установки');
+        drupal_set_title(st('Choose language'));
         include_once DRUPAL_ROOT . '/core/includes/form.inc';
         $elements = drupal_get_form('install_select_locale_form', $locales, $profilename);
         return drupal_render($elements);
       }
       else {
-        throw new Exception('Необходимо выбрать язык, чтобы продолжить установку.');
+        throw new Exception(st('Sorry, you must select a language to continue the installation.'));
       }
     }
   }
@@ -1332,7 +1332,7 @@ function install_select_locale_form($form, &$form_state, $locales, $profilename)
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] =  array(
     '#type' => 'submit',
-    '#value' => 'Далее',
+    '#value' => st('Save and continue'),
   );
   return $form;
 }
@@ -1430,7 +1430,7 @@ function install_profile_modules(&$install_state) {
   }
   $batch = array(
     'operations' => $operations,
-    'title' => 'Установка дистрибутива',
+    'title' => st('Installing @drupal', array('@drupal' => drupal_install_profile_distribution_name())),
     'error_message' => st('The installation has encountered an error.'),
     'finished' => '_install_profile_modules_finished',
   );
@@ -1753,13 +1753,13 @@ function _install_configure_form($form, &$form_state, &$install_state) {
   );
   $form['site_information']['site_name'] = array(
     '#type' => 'textfield',
-    '#title' => 'Название сайта',
+    '#title' => st('Site name'),
     '#required' => TRUE,
     '#weight' => -20,
   );
   $form['site_information']['site_mail'] = array(
     '#type' => 'textfield',
-    '#title' => 'E-mail сайта',
+    '#title' => st('Site e-mail address'),
     '#default_value' => ini_get('sendmail_from'),
     '#description' => st("Automated e-mails, such as registration information, will be sent from this address. Use an address ending in your site's domain to help prevent these e-mails from being flagged as spam."),
     '#required' => TRUE,
@@ -1830,7 +1830,7 @@ function _install_configure_form($form, &$form_state, &$install_state) {
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Далее',
+    '#value' => st('Save and continue'),
     '#weight' => 15,
   );
 

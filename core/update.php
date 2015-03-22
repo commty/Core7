@@ -168,9 +168,9 @@ function update_script_selection_form($form, &$form_state) {
 function update_helpful_links() {
   // NOTE: we can't use l() here because the URL would point to
   // 'core/update.php?q=admin'.
-  $links[] = '<a href="' . base_path() . '">На главную</a>';
+  $links[] = '<a href="' . base_path() . '">Front page</a>';
   if (user_access('access administration pages')) {
-    $links[] = '<a href="' . base_path() . '?q=admin">Вернуться в административный интерфейс</a>';
+    $links[] = '<a href="' . base_path() . '?q=admin">Administration pages</a>';
   }
   return $links;
 }
@@ -179,7 +179,7 @@ function update_helpful_links() {
  * Displays results of the update script with any accompanying errors.
  */
 function update_results_page() {
-  drupal_set_title('Обновление базы данных');
+  drupal_set_title('Drupal database update');
   $links = update_helpful_links();
 
   update_task_list();
@@ -277,16 +277,18 @@ function update_info_page() {
   }
 
   update_task_list('info');
-  drupal_set_title('Обновление базы данных');
+  drupal_set_title('Drupal database update');
   $token = drupal_get_token('update');
-  $output = '<p>Используйте эту утилиту для обновления базы данных, когда установлен новый релиз Core7 или модуля..</p>';
+  $output = '<p>Use this utility to update your database whenever a new release of Drupal or a module is installed.</p><p>For more detailed information, see the <a href="http://drupal.org/upgrade">upgrading handbook</a>. If you are unsure what these terms mean you should probably contact your hosting provider.</p>';
   $output .= "<ol>\n";
-  $output .= "<li><strong>Сделайте резервную копию базы данных!</strong> <br /> Этот процесс изменит данные базы данных и в случае чрезвычайной ситуации вам может понадобиться вернуться к резервной копии.</li>\n";
-  $output .= '<li>Переведите сайт в <a href="' . base_path() . '?q=admin/config/development/maintenance">Режим обсуживания</a>.</li>' . "\n";
+  $output .= "<li><strong>Back up your database</strong>. This process will change your database values and in case of emergency you may need to revert to a backup.</li>\n";
+  $output .= "<li><strong>Back up your code</strong>. Hint: when backing up module code, do not leave that backup in the 'modules' or 'sites/*/modules' directories as this may confuse Drupal's auto-discovery mechanism.</li>\n";
+  $output .= '<li>Put your site into <a href="' . base_path() . '?q=admin/config/development/maintenance">maintenance mode</a>.</li>' . "\n";
+  $output .= "<li>Install your new files in the appropriate location, as described in the handbook.</li>\n";
   $output .= "</ol>\n";
-  $output .= "<p>Теперь вы можете обновить базу данных сайта.</p>\n";
+  $output .= "<p>When you have performed the steps above, you may proceed.</p>\n";
   $form_action = check_url(drupal_current_script_url(array('op' => 'selection', 'token' => $token)));
-  $output .= '<form method="post" action="' . $form_action . '"><p><input type="submit" value="Обновить" class="form-submit" /></p></form>';
+  $output .= '<form method="post" action="' . $form_action . '"><p><input type="submit" value="Continue" class="form-submit" /></p></form>';
   $output .= "\n";
   return $output;
 }
@@ -340,10 +342,10 @@ function update_access_allowed() {
 function update_task_list($active = NULL) {
   // Default list of tasks.
   $tasks = array(
-    'requirements' => 'Проверка зависимостей',
-    'info' => 'Сбор информации',
-    'select' => 'Проверка обновлений',
-    'run' => 'Импорт обновлений',
+    'requirements' => 'Verify requirements',
+    'info' => 'Overview',
+    'select' => 'Review updates',
+    'run' => 'Run updates',
     'finished' => 'Review log',
   );
 
@@ -390,7 +392,7 @@ function update_check_requirements($skip_warnings = FALSE) {
 
 // Some unavoidable errors happen because the database is not yet up-to-date.
 // Our custom error handler is not yet installed, so we just suppress them.
-ini_set('display_errors', TRUE);
+ini_set('display_errors', FALSE);
 
 // We prepare a minimal bootstrap for the update requirements check to avoid
 // reaching the PHP memory limit.
