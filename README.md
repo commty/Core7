@@ -1,9 +1,6 @@
-Core 7 CMF
-============
-
-Fork of Drupal 7
-
-New folder structure as drupal 8
+Core 7 Fork
+------------
+The new folder structure as Drupal 8  and some minor improvements.
 
 ABOUT DRUPAL
 ------------
