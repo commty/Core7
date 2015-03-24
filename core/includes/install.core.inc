@@ -897,7 +897,7 @@ function install_settings_form($form, &$form_state, &$install_state) {
    );
   if (count($drivers) == 1) {
     $form['driver']['#disabled'] = TRUE;
-    $form['driver']['#description'] .= ' ' . st('Your PHP configuration only supports a single database type, so it has been automatically selected.');
+    $form['driver']['#description'] = ' ' . st('Your PHP configuration only supports a single database type, so it has been automatically selected.');
   }
 
   // Add driver specific configuration options.
