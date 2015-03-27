@@ -3898,7 +3898,7 @@ function theme_form($variables) {
     $element['#attributes']['accept-charset'] = "UTF-8";
   }
   // Anonymous DIV to satisfy XHTML compliance.
-  return '<form' . drupal_attributes($element['#attributes']) . '><div>' . $element['#children'] . '</div></form>';
+  return '<form' . drupal_attributes($element['#attributes']) . '>' . $element['#children'] . '</form>';
 }
 
 /**
