@@ -24,7 +24,7 @@
             <a href="#page-top"></a>
           </li>
           <li class="page-scroll">
-            <a href="#" data-toggle="modal" data-target="#Help">Помощь</a>
+<!--            <a href="#" data-toggle="modal" data-target="#Help">Помощь</a>-->
           </li>
         </ul>
       </div>
