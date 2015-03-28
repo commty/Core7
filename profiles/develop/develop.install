@@ -1,18 +1,18 @@
 <?php
 /**
  * @file
- * Install, update and uninstall functions for the standard installation profile.
+ * Install, update and uninstall functions for the develop installation profile.
  */
 
 /**
  * Implements hook_install().
  *
- * Perform actions to set up the site for this profile.
+ * Performs actions to set up the site for this profile.
  *
  * @see system_install()
  */
-function standard_install() {
-  // Add text formats.
+function develop_install() {
+// Add text formats.
   $filtered_html_format = array(
     'format' => 'filtered_html',
     'name' => 'Filtered HTML',
@@ -74,56 +74,6 @@ function standard_install() {
   $blocks = array(
     array(
       'module' => 'system',
-      'delta' => 'main',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'search',
-      'delta' => 'form',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => -1,
-      'region' => 'sidebar_first',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'node',
-      'delta' => 'recent',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 10,
-      'region' => 'dashboard_main',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'user',
-      'delta' => 'login',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'sidebar_first',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'navigation',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'sidebar_first',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
       'delta' => 'powered-by',
       'theme' => $default_theme,
       'status' => 1,
@@ -134,31 +84,11 @@ function standard_install() {
     ),
     array(
       'module' => 'system',
-      'delta' => 'help',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'help',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
       'delta' => 'main',
       'theme' => $admin_theme,
       'status' => 1,
       'weight' => 0,
       'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'help',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'help',
       'pages' => '',
       'cache' => -1,
     ),
@@ -172,33 +102,13 @@ function standard_install() {
       'pages' => '',
       'cache' => -1,
     ),
-    array(
-      'module' => 'user',
-      'delta' => 'new',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'dashboard_sidebar',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'search',
-      'delta' => 'form',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => -10,
-      'region' => 'dashboard_sidebar',
-      'pages' => '',
-      'cache' => -1,
-    ),
   );
   $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
   foreach ($blocks as $block) {
     $query->values($block);
   }
   $query->execute();
-
+  // Enable some standard blocks.
   // Insert default pre-defined node types into the database. For a complete
   // list of available node type attributes, refer to the node type API
   // documentation at: http://api.drupal.org/api/HEAD/function/hook_node_info.
@@ -229,99 +139,12 @@ function standard_install() {
     node_add_body_field($type);
   }
 
-  // Insert default pre-defined RDF mapping into the database.
-  $rdf_mappings = array(
-    array(
-      'type' => 'node',
-      'bundle' => 'page',
-      'mapping' => array(
-        'rdftype' => array('foaf:Document'),
-      ),
-    ),
-    array(
-      'type' => 'node',
-      'bundle' => 'article',
-      'mapping' => array(
-        'field_image' => array(
-          'predicates' => array('og:image', 'rdfs:seeAlso'),
-          'type' => 'rel',
-        ),
-        'field_tags' => array(
-          'predicates' => array('dc:subject'),
-          'type' => 'rel',
-        ),
-      ),
-    ),
-  );
-  foreach ($rdf_mappings as $rdf_mapping) {
-    rdf_mapping_save($rdf_mapping);
-  }
-
   // Default "Basic page" to not be promoted and have comments disabled.
   variable_set('node_options_page', array('status'));
   variable_set('comment_page', COMMENT_NODE_HIDDEN);
 
   // Don't display date and author information for "Basic page" nodes by default.
   variable_set('node_submitted_page', FALSE);
-
-  // Enable user picture support and set the default to a square thumbnail option.
-  variable_set('user_pictures', '1');
-  variable_set('user_picture_dimensions', '1024x1024');
-  variable_set('user_picture_file_size', '800');
-  variable_set('user_picture_style', 'thumbnail');
-
-  // Allow visitor account creation with administrative approval.
-  variable_set('user_register', USER_REGISTER_VISITORS_ADMINISTRATIVE_APPROVAL);
-
-  // Create a default vocabulary named "Tags", enabled for the 'article' content type.
-  $description = st('Use tags to group articles on similar topics into categories.');
-  $vocabulary = (object) array(
-    'name' => st('Tags'),
-    'description' => $description,
-    'machine_name' => 'tags',
-  );
-  taxonomy_vocabulary_save($vocabulary);
-
-  $field = array(
-    'field_name' => 'field_' . $vocabulary->machine_name,
-    'type' => 'taxonomy_term_reference',
-    // Set cardinality to unlimited for tagging.
-    'cardinality' => FIELD_CARDINALITY_UNLIMITED,
-    'settings' => array(
-      'allowed_values' => array(
-        array(
-          'vocabulary' => $vocabulary->machine_name,
-          'parent' => 0,
-        ),
-      ),
-    ),
-  );
-  field_create_field($field);
-
-  $help = st('Enter a comma-separated list of words to describe your content.');
-  $instance = array(
-    'field_name' => 'field_' . $vocabulary->machine_name,
-    'entity_type' => 'node',
-    'label' => 'Tags',
-    'bundle' => 'article',
-    'description' => $help,
-    'widget' => array(
-      'type' => 'taxonomy_autocomplete',
-      'weight' => -4,
-    ),
-    'display' => array(
-      'default' => array(
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 10,
-      ),
-      'teaser' => array(
-        'type' => 'taxonomy_term_reference_link',
-        'weight' => 10,
-      ),
-    ),
-  );
-  field_create_instance($instance);
-
 
   // Create an image field named "Image", enabled for the 'article' content type.
   // Many of the following values will be defaulted, they're included here as an illustrative examples.
@@ -356,7 +179,7 @@ function standard_install() {
     'required' => FALSE,
 
     'settings' => array(
-      'file_directory' => 'field/image',
+      'file_directory' => 'image',
       'file_extensions' => 'png gif jpg jpeg',
       'max_filesize' => '',
       'max_resolution' => '',
@@ -391,14 +214,17 @@ function standard_install() {
   );
   field_create_instance($instance);
 
+
+  // Allow visitor account creation, but with administrative approval.
+  variable_set('user_register', USER_REGISTER_ADMINISTRATORS_ONLY);
+
   // Enable default permissions for system roles.
-  $filtered_html_permission = filter_permission_name($filtered_html_format);
-  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content', 'access comments', $filtered_html_permission));
-  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content', 'access comments', 'post comments', 'skip comment approval', $filtered_html_permission));
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array('access content'));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array('access content'));
 
   // Create a default role for site administrators, with all available permissions assigned.
   $admin_role = new stdClass();
-  $admin_role->name = 'administrator';
+  $admin_role->name = 'Administrator';
   $admin_role->weight = 2;
   user_role_save($admin_role);
   user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
@@ -410,9 +236,12 @@ function standard_install() {
     ->fields(array('uid' => 1, 'rid' => $admin_role->rid))
     ->execute();
 
+  variable_set('user_pictures', '1');
+  variable_set('user_picture_style', 'thumbnail');
+
   // Create a Home link in the main menu.
   $item = array(
-    'link_title' => st('Home'),
+    'link_title' => 'Главная',
     'link_path' => '<front>',
     'menu_name' => 'main-menu',
   );
