@@ -291,7 +291,6 @@ function user_schema() {
  * Implements hook_install().
  */
 function user_install() {
-  variable_set('user_picture_default', '/misc/default-user-picture.png');
   // Insert a row for the anonymous user.
   db_insert('users')
     ->fields(array(

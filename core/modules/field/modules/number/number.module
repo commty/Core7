@@ -289,22 +289,9 @@ function number_field_formatter_view($entity_type, $entity, $field, $instance, $
 
   switch ($display['type']) {
     case 'number_integer':
-      foreach ($items as $delta => $item) {
-        $output = number_format($item['value'], $settings['scale'], $settings['decimal_separator'], $settings['thousand_separator']);
-        if ($settings['prefix_suffix']) {
-          $prefixes = isset($instance['settings']['prefix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['prefix'])) : array('');
-          $suffixes = isset($instance['settings']['suffix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['suffix'])) : array('');
-          $prefix = (count($prefixes) > 1) ? format_plural($item['value'], $prefixes[0], $prefixes[1]) : $prefixes[0];
-          $suffix = (count($suffixes) > 1) ? format_plural($item['value'], $suffixes[0], $suffixes[1]) : $suffixes[0];
-          $output = $prefix . $output . $suffix;
-        }
-        $element[$delta] = array('#markup' => $output);
-      }
-      break;
     case 'number_decimal':
       foreach ($items as $delta => $item) {
         $output = number_format($item['value'], $settings['scale'], $settings['decimal_separator'], $settings['thousand_separator']);
-        $output = trim(trim($output, '0'), '.');
         if ($settings['prefix_suffix']) {
           $prefixes = isset($instance['settings']['prefix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['prefix'])) : array('');
           $suffixes = isset($instance['settings']['suffix']) ? array_map('field_filter_xss', explode('|', $instance['settings']['suffix'])) : array('');

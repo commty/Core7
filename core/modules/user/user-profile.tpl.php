@@ -17,7 +17,6 @@
  *
  * Available variables:
  *   - $user_profile: An array of profile items. Use render() to print them.
- *   - $user_profile['user_picture']['#markup']:  Default user picture.
  *   - Field variables: for each field instance attached to the user a
  *     corresponding variable is defined; e.g., $account->field_example has a
  *     variable $field_example defined. When needing to access a field's raw

@@ -33,7 +33,7 @@ define('IMAGE_STORAGE_MODULE', IMAGE_STORAGE_OVERRIDE | IMAGE_STORAGE_DEFAULT);
 /**
  * The name of the query parameter for image derivative tokens.
  */
-define('IMAGE_DERIVATIVE_TOKEN', 'pref');
+define('IMAGE_DERIVATIVE_TOKEN', 'itok');
 
 // Load all Field module hooks for Image.
 require_once DRUPAL_ROOT . '/core/modules/image/image.field.inc';
@@ -845,11 +845,11 @@ function image_style_deliver($style, $scheme) {
     }
   }
 
-    // Confirm that the original source image exists before trying to process it.
-    if (!is_file($image_uri)) {
-        watchdog('image', 'Source image at %source_image_path not found while trying to generate derivative image at %derivative_path.',  array('%source_image_path' => $image_uri, '%derivative_path' => $derivative_uri));
-        return MENU_NOT_FOUND;
-    }
+  // Confirm that the original source image exists before trying to process it.
+  if (!is_file($image_uri)) {
+    watchdog('image', 'Source image at %source_image_path not found while trying to generate derivative image at %derivative_path.',  array('%source_image_path' => $image_uri, '%derivative_path' => $derivative_uri));
+    return MENU_NOT_FOUND;
+  }
 
   // Don't start generating the image if the derivative already exists or if
   // generation is in progress in another thread.
@@ -1156,7 +1156,7 @@ function image_effect_definitions() {
     }
     else {
       $effects = array();
-      include_once DRUPAL_ROOT . '/core/modules/image/image.effects.inc';
+      include_once DRUPAL_ROOT . '/root/modules/image/image.effects.inc';
       foreach (module_implements('image_effect_info') as $module) {
         foreach (module_invoke($module, 'image_effect_info') as $name => $effect) {
           // Ensure the current toolkit supports the effect.

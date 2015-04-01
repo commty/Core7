@@ -45,34 +45,34 @@
  * @ingroup field_types
  */
 function hook_field_extra_fields() {
-    $extra['node']['poll'] = array(
-        'form' => array(
-            'choice_wrapper' => array(
-                'label' => t('Poll choices'),
-                'description' => t('Poll choices'),
-                'weight' => -4,
-            ),
-            'settings' => array(
-                'label' => t('Poll settings'),
-                'description' => t('Poll module settings'),
-                'weight' => -3,
-            ),
-        ),
-        'display' => array(
-            'poll_view_voting' => array(
-                'label' => t('Poll vote'),
-                'description' => t('Poll vote'),
-                'weight' => 0,
-            ),
-            'poll_view_results' => array(
-                'label' => t('Poll results'),
-                'description' => t('Poll results'),
-                'weight' => 0,
-            ),
-        )
-    );
+  $extra['node']['poll'] = array(
+    'form' => array(
+      'choice_wrapper' => array(
+        'label' => t('Poll choices'),
+        'description' => t('Poll choices'),
+        'weight' => -4,
+      ),
+      'settings' => array(
+        'label' => t('Poll settings'),
+        'description' => t('Poll module settings'),
+        'weight' => -3,
+      ),
+    ),
+    'display' => array(
+      'poll_view_voting' => array(
+        'label' => t('Poll vote'),
+        'description' => t('Poll vote'),
+        'weight' => 0,
+      ),
+      'poll_view_results' => array(
+        'label' => t('Poll results'),
+        'description' => t('Poll results'),
+        'weight' => 0,
+      ),
+    )
+  );
 
-    return $extra;
+  return $extra;
 }
 
 /**
@@ -86,12 +86,12 @@ function hook_field_extra_fields() {
  * @ingroup field_types
  */
 function hook_field_extra_fields_alter(&$info) {
-    // Force node title to always be at the top of the list by default.
-    foreach (node_type_get_types() as $bundle) {
-        if (isset($info['node'][$bundle->type]['form']['title'])) {
-            $info['node'][$bundle->type]['form']['title']['weight'] = -20;
-        }
+  // Force node title to always be at the top of the list by default.
+  foreach (node_type_get_types() as $bundle) {
+    if (isset($info['node'][$bundle->type]['form']['title'])) {
+      $info['node'][$bundle->type]['form']['title']['weight'] = -20;
     }
+  }
 }
 
 /**
@@ -158,32 +158,32 @@ function hook_field_extra_fields_alter(&$info) {
  * @see hook_field_info_alter()
  */
 function hook_field_info() {
-    return array(
-        'text' => array(
-            'label' => t('Text'),
-            'description' => t('This field stores varchar text in the database.'),
-            'settings' => array('max_length' => 255),
-            'instance_settings' => array('text_processing' => 0),
-            'default_widget' => 'text_textfield',
-            'default_formatter' => 'text_default',
-        ),
-        'text_long' => array(
-            'label' => t('Long text'),
-            'description' => t('This field stores long text in the database.'),
-            'settings' => array('max_length' => ''),
-            'instance_settings' => array('text_processing' => 0),
-            'default_widget' => 'text_textarea',
-            'default_formatter' => 'text_default',
-        ),
-        'text_with_summary' => array(
-            'label' => t('Long text and summary'),
-            'description' => t('This field stores long text in the database along with optional summary text.'),
-            'settings' => array('max_length' => ''),
-            'instance_settings' => array('text_processing' => 1, 'display_summary' => 0),
-            'default_widget' => 'text_textarea_with_summary',
-            'default_formatter' => 'text_summary_or_trimmed',
-        ),
-    );
+  return array(
+    'text' => array(
+      'label' => t('Text'),
+      'description' => t('This field stores varchar text in the database.'),
+      'settings' => array('max_length' => 255),
+      'instance_settings' => array('text_processing' => 0),
+      'default_widget' => 'text_textfield',
+      'default_formatter' => 'text_default',
+    ),
+    'text_long' => array(
+      'label' => t('Long text'),
+      'description' => t('This field stores long text in the database.'),
+      'settings' => array('max_length' => ''),
+      'instance_settings' => array('text_processing' => 0),
+      'default_widget' => 'text_textarea',
+      'default_formatter' => 'text_default',
+    ),
+    'text_with_summary' => array(
+      'label' => t('Long text and summary'),
+      'description' => t('This field stores long text in the database along with optional summary text.'),
+      'settings' => array('max_length' => ''),
+      'instance_settings' => array('text_processing' => 1, 'display_summary' => 0),
+      'default_widget' => 'text_textarea_with_summary',
+      'default_formatter' => 'text_summary_or_trimmed',
+    ),
+  );
 }
 
 /**
@@ -194,17 +194,17 @@ function hook_field_info() {
  *   implementations.
  */
 function hook_field_info_alter(&$info) {
-    // Add a setting to all field types.
-    foreach ($info as $field_type => $field_type_info) {
-        $info[$field_type]['settings'] += array(
-            'mymodule_additional_setting' => 'default value',
-        );
-    }
+  // Add a setting to all field types.
+  foreach ($info as $field_type => $field_type_info) {
+    $info[$field_type]['settings'] += array(
+      'mymodule_additional_setting' => 'default value',
+    );
+  }
 
-    // Change the default widget for fields of type 'foo'.
-    if (isset($info['foo'])) {
-        $info['foo']['default widget'] = 'mymodule_widget';
-    }
+  // Change the default widget for fields of type 'foo'.
+  if (isset($info['foo'])) {
+    $info['foo']['default widget'] = 'mymodule_widget';
+  }
 }
 
 /**
@@ -239,43 +239,43 @@ function hook_field_info_alter(&$info) {
  *     definitions.
  */
 function hook_field_schema($field) {
-    if ($field['type'] == 'text_long') {
-        $columns = array(
-            'value' => array(
-                'type' => 'text',
-                'size' => 'big',
-                'not null' => FALSE,
-            ),
-        );
-    }
-    else {
-        $columns = array(
-            'value' => array(
-                'type' => 'varchar',
-                'length' => $field['settings']['max_length'],
-                'not null' => FALSE,
-            ),
-        );
-    }
-    $columns += array(
-        'format' => array(
-            'type' => 'varchar',
-            'length' => 255,
-            'not null' => FALSE,
-        ),
+  if ($field['type'] == 'text_long') {
+    $columns = array(
+      'value' => array(
+        'type' => 'text',
+        'size' => 'big',
+        'not null' => FALSE,
+      ),
     );
-    return array(
-        'columns' => $columns,
-        'indexes' => array(
-            'format' => array('format'),
-        ),
-        'foreign keys' => array(
-            'format' => array(
-                'table' => 'filter_format',
-                'columns' => array('format' => 'format'),
-            ),
-        ),
+  }
+  else {
+    $columns = array(
+      'value' => array(
+        'type' => 'varchar',
+        'length' => $field['settings']['max_length'],
+        'not null' => FALSE,
+      ),
     );
+  }
+  $columns += array(
+    'format' => array(
+      'type' => 'varchar',
+      'length' => 255,
+      'not null' => FALSE,
+    ),
+  );
+  return array(
+    'columns' => $columns,
+    'indexes' => array(
+      'format' => array('format'),
+    ),
+    'foreign keys' => array(
+      'format' => array(
+        'table' => 'filter_format',
+        'columns' => array('format' => 'format'),
+      ),
+    ),
+  );
 }
 
 /**
@@ -314,20 +314,20 @@ function hook_field_schema($field) {
  *   FIELD_LOAD_REVISION to load the version indicated by each entity.
  */
 function hook_field_load($entity_type, $entities, $field, $instances, $langcode, &$items, $age) {
-    // Sample code from text.module: precompute sanitized strings so they are
-    // stored in the field cache.
-    foreach ($entities as $id => $entity) {
-        foreach ($items[$id] as $delta => $item) {
-            // Only process items with a cacheable format, the rest will be handled
-            // by formatters if needed.
-            if (empty($instances[$id]['settings']['text_processing']) || filter_format_allowcache($item['format'])) {
-                $items[$id][$delta]['safe_value'] = isset($item['value']) ? _text_sanitize($instances[$id], $langcode, $item, 'value') : '';
-                if ($field['type'] == 'text_with_summary') {
-                    $items[$id][$delta]['safe_summary'] = isset($item['summary']) ? _text_sanitize($instances[$id], $langcode, $item, 'summary') : '';
-                }
-            }
+  // Sample code from text.module: precompute sanitized strings so they are
+  // stored in the field cache.
+  foreach ($entities as $id => $entity) {
+    foreach ($items[$id] as $delta => $item) {
+      // Only process items with a cacheable format, the rest will be handled
+      // by formatters if needed.
+      if (empty($instances[$id]['settings']['text_processing']) || filter_format_allowcache($item['format'])) {
+        $items[$id][$delta]['safe_value'] = isset($item['value']) ? _text_sanitize($instances[$id], $langcode, $item, 'value') : '';
+        if ($field['type'] == 'text_with_summary') {
+          $items[$id][$delta]['safe_summary'] = isset($item['summary']) ? _text_sanitize($instances[$id], $langcode, $item, 'summary') : '';
         }
+      }
     }
+  }
 }
 
 /**
@@ -360,19 +360,19 @@ function hook_field_load($entity_type, $entities, $field, $instances, $langcode,
  *   $entity->{$field['field_name']}, or an empty array if unset.
  */
 function hook_field_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items) {
-    // Sample code from image.module: if there are no images specified at all,
-    // use the default image.
-    foreach ($entities as $id => $entity) {
-        if (empty($items[$id]) && $field['settings']['default_image']) {
-            if ($file = file_load($field['settings']['default_image'])) {
-                $items[$id][0] = (array) $file + array(
-                        'is_default' => TRUE,
-                        'alt' => '',
-                        'title' => '',
-                    );
-            }
-        }
+  // Sample code from image.module: if there are no images specified at all,
+  // use the default image.
+  foreach ($entities as $id => $entity) {
+    if (empty($items[$id]) && $field['settings']['default_image']) {
+      if ($file = file_load($field['settings']['default_image'])) {
+        $items[$id][0] = (array) $file + array(
+          'is_default' => TRUE,
+          'alt' => '',
+          'title' => '',
+        );
+      }
     }
+  }
 }
 
 /**
@@ -402,16 +402,16 @@ function hook_field_prepare_view($entity_type, $entities, $field, $instances, $l
  *   - message: The human readable message to be displayed.
  */
 function hook_field_validate($entity_type, $entity, $field, $instance, $langcode, $items, &$errors) {
-    foreach ($items as $delta => $item) {
-        if (!empty($item['value'])) {
-            if (!empty($field['settings']['max_length']) && drupal_strlen($item['value']) > $field['settings']['max_length']) {
-                $errors[$field['field_name']][$langcode][$delta][] = array(
-                    'error' => 'text_max_length',
-                    'message' => t('%name: the value may not be longer than %max characters.', array('%name' => $instance['label'], '%max' => $field['settings']['max_length'])),
-                );
-            }
-        }
+  foreach ($items as $delta => $item) {
+    if (!empty($item['value'])) {
+      if (!empty($field['settings']['max_length']) && drupal_strlen($item['value']) > $field['settings']['max_length']) {
+        $errors[$field['field_name']][$langcode][$delta][] = array(
+          'error' => 'text_max_length',
+          'message' => t('%name: the value may not be longer than %max characters.', array('%name' => $instance['label'], '%max' => $field['settings']['max_length'])),
+        );
+      }
     }
+  }
 }
 
 /**
@@ -434,15 +434,15 @@ function hook_field_validate($entity_type, $entity, $field, $instance, $langcode
  *   $entity->{$field['field_name']}[$langcode], or an empty array if unset.
  */
 function hook_field_presave($entity_type, $entity, $field, $instance, $langcode, &$items) {
-    if ($field['type'] == 'number_decimal') {
-        // Let PHP round the value to ensure consistent behavior across storage
-        // backends.
-        foreach ($items as $delta => $item) {
-            if (isset($item['value'])) {
-                $items[$delta]['value'] = round($item['value'], $field['settings']['scale']);
-            }
-        }
+  if ($field['type'] == 'number_decimal') {
+    // Let PHP round the value to ensure consistent behavior across storage
+    // backends.
+    foreach ($items as $delta => $item) {
+      if (isset($item['value'])) {
+        $items[$delta]['value'] = round($item['value'], $field['settings']['scale']);
+      }
     }
+  }
 }
 
 /**
@@ -472,18 +472,18 @@ function hook_field_presave($entity_type, $entity, $field, $instance, $langcode,
  * @see hook_field_delete()
  */
 function hook_field_insert($entity_type, $entity, $field, $instance, $langcode, &$items) {
-    if (variable_get('taxonomy_maintain_index_table', TRUE) && $field['storage']['type'] == 'field_sql_storage' && $entity_type == 'node' && $entity->status) {
-        $query = db_insert('taxonomy_index')->fields(array('nid', 'tid', 'sticky', 'created', ));
-        foreach ($items as $item) {
-            $query->values(array(
-                'nid' => $entity->nid,
-                'tid' => $item['tid'],
-                'sticky' => $entity->sticky,
-                'created' => $entity->created,
-            ));
-        }
-        $query->execute();
+  if (variable_get('taxonomy_maintain_index_table', TRUE) && $field['storage']['type'] == 'field_sql_storage' && $entity_type == 'node' && $entity->status) {
+    $query = db_insert('taxonomy_index')->fields(array('nid', 'tid', 'sticky', 'created', ));
+    foreach ($items as $item) {
+      $query->values(array(
+        'nid' => $entity->nid,
+        'tid' => $item['tid'],
+        'sticky' => $entity->sticky,
+        'created' => $entity->created,
+      ));
     }
+    $query->execute();
+  }
 }
 
 /**
@@ -513,30 +513,30 @@ function hook_field_insert($entity_type, $entity, $field, $instance, $langcode, 
  * @see hook_field_delete()
  */
 function hook_field_update($entity_type, $entity, $field, $instance, $langcode, &$items) {
-    if (variable_get('taxonomy_maintain_index_table', TRUE) && $field['storage']['type'] == 'field_sql_storage' && $entity_type == 'node') {
-        $first_call = &drupal_static(__FUNCTION__, array());
+  if (variable_get('taxonomy_maintain_index_table', TRUE) && $field['storage']['type'] == 'field_sql_storage' && $entity_type == 'node') {
+    $first_call = &drupal_static(__FUNCTION__, array());
 
-        // We don't maintain data for old revisions, so clear all previous values
-        // from the table. Since this hook runs once per field, per object, make
-        // sure we only wipe values once.
-        if (!isset($first_call[$entity->nid])) {
-            $first_call[$entity->nid] = FALSE;
-            db_delete('taxonomy_index')->condition('nid', $entity->nid)->execute();
-        }
-        // Only save data to the table if the node is published.
-        if ($entity->status) {
-            $query = db_insert('taxonomy_index')->fields(array('nid', 'tid', 'sticky', 'created'));
-            foreach ($items as $item) {
-                $query->values(array(
-                    'nid' => $entity->nid,
-                    'tid' => $item['tid'],
-                    'sticky' => $entity->sticky,
-                    'created' => $entity->created,
-                ));
-            }
-            $query->execute();
-        }
+    // We don't maintain data for old revisions, so clear all previous values
+    // from the table. Since this hook runs once per field, per object, make
+    // sure we only wipe values once.
+    if (!isset($first_call[$entity->nid])) {
+      $first_call[$entity->nid] = FALSE;
+      db_delete('taxonomy_index')->condition('nid', $entity->nid)->execute();
     }
+    // Only save data to the table if the node is published.
+    if ($entity->status) {
+      $query = db_insert('taxonomy_index')->fields(array('nid', 'tid', 'sticky', 'created'));
+      foreach ($items as $item) {
+        $query->values(array(
+          'nid' => $entity->nid,
+          'tid' => $item['tid'],
+          'sticky' => $entity->sticky,
+          'created' => $entity->created,
+        ));
+      }
+      $query->execute();
+    }
+  }
 }
 
 /**
@@ -556,23 +556,23 @@ function hook_field_update($entity_type, $entity, $field, $instance, $langcode, 
  *   TRUE if the field has data in storage currently.
  */
 function hook_field_storage_update_field($field, $prior_field, $has_data) {
-    if (!$has_data) {
-        // There is no data. Re-create the tables completely.
-        $prior_schema = _field_sql_storage_schema($prior_field);
-        foreach ($prior_schema as $name => $table) {
-            db_drop_table($name, $table);
-        }
-        $schema = _field_sql_storage_schema($field);
-        foreach ($schema as $name => $table) {
-            db_create_table($name, $table);
-        }
+  if (!$has_data) {
+    // There is no data. Re-create the tables completely.
+    $prior_schema = _field_sql_storage_schema($prior_field);
+    foreach ($prior_schema as $name => $table) {
+      db_drop_table($name, $table);
     }
-    else {
-        // There is data. See field_sql_storage_field_storage_update_field() for
-        // an example of what to do to modify the schema in place, preserving the
-        // old data as much as possible.
+    $schema = _field_sql_storage_schema($field);
+    foreach ($schema as $name => $table) {
+      db_create_table($name, $table);
     }
-    drupal_get_schema(NULL, TRUE);
+  }
+  else {
+    // There is data. See field_sql_storage_field_storage_update_field() for
+    // an example of what to do to modify the schema in place, preserving the
+    // old data as much as possible.
+  }
+  drupal_get_schema(NULL, TRUE);
 }
 
 /**
@@ -602,16 +602,16 @@ function hook_field_storage_update_field($field, $prior_field, $has_data) {
  * @see hook_field_update()
  */
 function hook_field_delete($entity_type, $entity, $field, $instance, $langcode, &$items) {
-    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
-    foreach ($items as $delta => $item) {
-        // For hook_file_references(), remember that this is being deleted.
-        $item['file_field_name'] = $field['field_name'];
-        // Pass in the ID of the object that is being removed so all references can
-        // be counted in hook_file_references().
-        $item['file_field_type'] = $entity_type;
-        $item['file_field_id'] = $id;
-        file_field_delete_file($item, $field, $entity_type, $id);
-    }
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  foreach ($items as $delta => $item) {
+    // For hook_file_references(), remember that this is being deleted.
+    $item['file_field_name'] = $field['field_name'];
+    // Pass in the ID of the object that is being removed so all references can
+    // be counted in hook_file_references().
+    $item['file_field_type'] = $entity_type;
+    $item['file_field_id'] = $id;
+    file_field_delete_file($item, $field, $entity_type, $id);
+  }
 }
 
 /**
@@ -635,14 +635,14 @@ function hook_field_delete($entity_type, $entity, $field, $instance, $langcode, 
  *   $entity->{$field['field_name']}[$langcode], or an empty array if unset.
  */
 function hook_field_delete_revision($entity_type, $entity, $field, $instance, $langcode, &$items) {
-    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
-    foreach ($items as $delta => $item) {
-        // For hook_file_references, remember that this file is being deleted.
-        $item['file_field_name'] = $field['field_name'];
-        if (file_field_delete_file($item, $field, $entity_type, $id)) {
-            $items[$delta] = NULL;
-        }
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  foreach ($items as $delta => $item) {
+    // For hook_file_references, remember that this file is being deleted.
+    $item['file_field_name'] = $field['field_name'];
+    if (file_field_delete_file($item, $field, $entity_type, $id)) {
+      $items[$delta] = NULL;
     }
+  }
 }
 
 /**
@@ -668,14 +668,14 @@ function hook_field_delete_revision($entity_type, $entity, $field, $instance, $l
  * @ingroup field_language
  */
 function hook_field_prepare_translation($entity_type, $entity, $field, $instance, $langcode, &$items, $source_entity, $source_langcode) {
-    // If the translating user is not permitted to use the assigned text format,
-    // we must not expose the source values.
-    $field_name = $field['field_name'];
-    $formats = filter_formats();
-    $format_id = $source_entity->{$field_name}[$source_langcode][0]['format'];
-    if (!filter_access($formats[$format_id])) {
-        $items = array();
-    }
+  // If the translating user is not permitted to use the assigned text format,
+  // we must not expose the source values.
+  $field_name = $field['field_name'];
+  $formats = filter_formats();
+  $format_id = $source_entity->{$field_name}[$source_langcode][0]['format'];
+  if (!filter_access($formats[$format_id])) {
+    $items = array();
+  }
 }
 
 /**
@@ -691,10 +691,10 @@ function hook_field_prepare_translation($entity_type, $entity, $field, $instance
  *   FALSE otherwise.
  */
 function hook_field_is_empty($item, $field) {
-    if (empty($item['value']) && (string) $item['value'] !== '0') {
-        return TRUE;
-    }
-    return FALSE;
+  if (empty($item['value']) && (string) $item['value'] !== '0') {
+    return TRUE;
+  }
+  return FALSE;
 }
 
 /**
@@ -762,37 +762,37 @@ function hook_field_is_empty($item, $field) {
  * @see hook_field_widget_settings_form()
  */
 function hook_field_widget_info() {
-    return array(
-        'text_textfield' => array(
-            'label' => t('Text field'),
-            'field types' => array('text'),
-            'settings' => array('size' => 60),
-            'behaviors' => array(
-                'multiple values' => FIELD_BEHAVIOR_DEFAULT,
-                'default value' => FIELD_BEHAVIOR_DEFAULT,
-            ),
-        ),
-        'text_textarea' => array(
-            'label' => t('Text area (multiple rows)'),
-            'field types' => array('text_long'),
-            'settings' => array('rows' => 5),
-            'behaviors' => array(
-                'multiple values' => FIELD_BEHAVIOR_DEFAULT,
-                'default value' => FIELD_BEHAVIOR_DEFAULT,
-            ),
-        ),
-        'text_textarea_with_summary' => array(
-            'label' => t('Text area with a summary'),
-            'field types' => array('text_with_summary'),
-            'settings' => array('rows' => 20, 'summary_rows' => 5),
-            'behaviors' => array(
-                'multiple values' => FIELD_BEHAVIOR_DEFAULT,
-                'default value' => FIELD_BEHAVIOR_DEFAULT,
-            ),
-            // As an advanced widget, force it to sink to the bottom of the choices.
-            'weight' => 2,
-        ),
-    );
+  return array(
+    'text_textfield' => array(
+      'label' => t('Text field'),
+      'field types' => array('text'),
+      'settings' => array('size' => 60),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
+    'text_textarea' => array(
+      'label' => t('Text area (multiple rows)'),
+      'field types' => array('text_long'),
+      'settings' => array('rows' => 5),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+    ),
+    'text_textarea_with_summary' => array(
+      'label' => t('Text area with a summary'),
+      'field types' => array('text_with_summary'),
+      'settings' => array('rows' => 20, 'summary_rows' => 5),
+      'behaviors' => array(
+        'multiple values' => FIELD_BEHAVIOR_DEFAULT,
+        'default value' => FIELD_BEHAVIOR_DEFAULT,
+      ),
+      // As an advanced widget, force it to sink to the bottom of the choices.
+      'weight' => 2,
+    ),
+  );
 }
 
 /**
@@ -803,13 +803,13 @@ function hook_field_widget_info() {
  *   implementations.
  */
 function hook_field_widget_info_alter(&$info) {
-    // Add a setting to a widget type.
-    $info['text_textfield']['settings'] += array(
-        'mymodule_additional_setting' => 'default value',
-    );
+  // Add a setting to a widget type.
+  $info['text_textfield']['settings'] += array(
+    'mymodule_additional_setting' => 'default value',
+  );
 
-    // Let a new field type re-use an existing widget.
-    $info['options_select']['field types'][] = 'my_field_type';
+  // Let a new field type re-use an existing widget.
+  $info['options_select']['field types'][] = 'my_field_type';
 }
 
 /**
@@ -891,11 +891,11 @@ function hook_field_widget_info_alter(&$info) {
  * @see hook_field_widget_WIDGET_TYPE_form_alter()
  */
 function hook_field_widget_form(&$form, &$form_state, $field, $instance, $langcode, $items, $delta, $element) {
-    $element += array(
-        '#type' => $instance['widget']['type'],
-        '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
-    );
-    return array('value' => $element);
+  $element += array(
+    '#type' => $instance['widget']['type'],
+    '#default_value' => isset($items[$delta]) ? $items[$delta] : '',
+  );
+  return array('value' => $element);
 }
 
 /**
@@ -920,11 +920,11 @@ function hook_field_widget_form(&$form, &$form_state, $field, $instance, $langco
  * @see hook_field_widget_WIDGET_TYPE_form_alter()
  */
 function hook_field_widget_form_alter(&$element, &$form_state, $context) {
-    // Add a css class to widget form elements for all fields of type mytype.
-    if ($context['field']['type'] == 'mytype') {
-        // Be sure not to overwrite existing attributes.
-        $element['#attributes']['class'][] = 'myclass';
-    }
+  // Add a css class to widget form elements for all fields of type mytype.
+  if ($context['field']['type'] == 'mytype') {
+    // Be sure not to overwrite existing attributes.
+    $element['#attributes']['class'][] = 'myclass';
+  }
 }
 
 /**
@@ -954,10 +954,10 @@ function hook_field_widget_form_alter(&$element, &$form_state, $context) {
  * @see hook_field_widget_form_alter()
  */
 function hook_field_widget_WIDGET_TYPE_form_alter(&$element, &$form_state, $context) {
-    // Code here will only act on widgets of type WIDGET_TYPE.  For example,
-    // hook_field_widget_mymodule_autocomplete_form_alter() will only act on
-    // widgets of type 'mymodule_autocomplete'.
-    $element['#autocomplete_path'] = 'mymodule/autocomplete_path';
+  // Code here will only act on widgets of type WIDGET_TYPE.  For example,
+  // hook_field_widget_mymodule_autocomplete_form_alter() will only act on
+  // widgets of type 'mymodule_autocomplete'.
+  $element['#autocomplete_path'] = 'mymodule/autocomplete_path';
 }
 
 /**
@@ -984,12 +984,12 @@ function hook_field_widget_WIDGET_TYPE_form_alter(&$element, &$form_state, $cont
  * @see hook_field_widget_properties_ENTITY_TYPE_alter()
  */
 function hook_field_widget_properties_alter(&$widget, $context) {
-    // Change a widget's type according to the time of day.
-    $field = $context['field'];
-    if ($context['entity_type'] == 'node' && $field['field_name'] == 'field_foo') {
-        $time = date('H');
-        $widget['type'] = $time < 12 ? 'widget_am' : 'widget_pm';
-    }
+  // Change a widget's type according to the time of day.
+  $field = $context['field'];
+  if ($context['entity_type'] == 'node' && $field['field_name'] == 'field_foo') {
+    $time = date('H');
+    $widget['type'] = $time < 12 ? 'widget_am' : 'widget_pm';
+  }
 }
 
 /**
@@ -1012,7 +1012,7 @@ function hook_field_widget_properties_alter(&$widget, $context) {
  *   An associative array containing the current state of the form.
  */
 function hook_field_widget_error($element, $error, $form, &$form_state) {
-    form_error($element, $error['message']);
+  form_error($element, $error['message']);
 }
 
 
@@ -1063,35 +1063,35 @@ function hook_field_widget_error($element, $error, $form, &$form_state) {
  * @see hook_field_formatter_prepare_view()
  */
 function hook_field_formatter_info() {
-    return array(
-        'text_default' => array(
-            'label' => t('Default'),
-            'field types' => array('text', 'text_long', 'text_with_summary'),
-        ),
-        'text_plain' => array(
-            'label' => t('Plain text'),
-            'field types' => array('text', 'text_long', 'text_with_summary'),
-        ),
+  return array(
+    'text_default' => array(
+      'label' => t('Default'),
+      'field types' => array('text', 'text_long', 'text_with_summary'),
+    ),
+    'text_plain' => array(
+      'label' => t('Plain text'),
+      'field types' => array('text', 'text_long', 'text_with_summary'),
+    ),
 
-        // The text_trimmed formatter displays the trimmed version of the
-        // full element of the field. It is intended to be used with text
-        // and text_long fields. It also works with text_with_summary
-        // fields though the text_summary_or_trimmed formatter makes more
-        // sense for that field type.
-        'text_trimmed' => array(
-            'label' => t('Trimmed'),
-            'field types' => array('text', 'text_long', 'text_with_summary'),
-        ),
+    // The text_trimmed formatter displays the trimmed version of the
+    // full element of the field. It is intended to be used with text
+    // and text_long fields. It also works with text_with_summary
+    // fields though the text_summary_or_trimmed formatter makes more
+    // sense for that field type.
+    'text_trimmed' => array(
+      'label' => t('Trimmed'),
+      'field types' => array('text', 'text_long', 'text_with_summary'),
+    ),
 
-        // The 'summary or trimmed' field formatter for text_with_summary
-        // fields displays returns the summary element of the field or, if
-        // the summary is empty, the trimmed version of the full element
-        // of the field.
-        'text_summary_or_trimmed' => array(
-            'label' => t('Summary or trimmed'),
-            'field types' => array('text_with_summary'),
-        ),
-    );
+    // The 'summary or trimmed' field formatter for text_with_summary
+    // fields displays returns the summary element of the field or, if
+    // the summary is empty, the trimmed version of the full element
+    // of the field.
+    'text_summary_or_trimmed' => array(
+      'label' => t('Summary or trimmed'),
+      'field types' => array('text_with_summary'),
+    ),
+  );
 }
 
 /**
@@ -1102,13 +1102,13 @@ function hook_field_formatter_info() {
  *   hook_field_formatter_info() implementations.
  */
 function hook_field_formatter_info_alter(&$info) {
-    // Add a setting to a formatter type.
-    $info['text_default']['settings'] += array(
-        'mymodule_additional_setting' => 'default value',
-    );
+  // Add a setting to a formatter type.
+  $info['text_default']['settings'] += array(
+    'mymodule_additional_setting' => 'default value',
+  );
 
-    // Let a new field type re-use an existing formatter.
-    $info['text_default']['field types'][] = 'my_field_type';
+  // Let a new field type re-use an existing formatter.
+  $info['text_default']['field types'][] = 'my_field_type';
 }
 
 /**
@@ -1147,43 +1147,43 @@ function hook_field_formatter_info_alter(&$info) {
  *   parameter by reference.
  */
 function hook_field_formatter_prepare_view($entity_type, $entities, $field, $instances, $langcode, &$items, $displays) {
-    $tids = array();
+  $tids = array();
 
-    // Collect every possible term attached to any of the fieldable entities.
+  // Collect every possible term attached to any of the fieldable entities.
+  foreach ($entities as $id => $entity) {
+    foreach ($items[$id] as $delta => $item) {
+      // Force the array key to prevent duplicates.
+      $tids[$item['tid']] = $item['tid'];
+    }
+  }
+
+  if ($tids) {
+    $terms = taxonomy_term_load_multiple($tids);
+
+    // Iterate through the fieldable entities again to attach the loaded term
+    // data.
     foreach ($entities as $id => $entity) {
-        foreach ($items[$id] as $delta => $item) {
-            // Force the array key to prevent duplicates.
-            $tids[$item['tid']] = $item['tid'];
+      $rekey = FALSE;
+
+      foreach ($items[$id] as $delta => $item) {
+        // Check whether the taxonomy term field instance value could be loaded.
+        if (isset($terms[$item['tid']])) {
+          // Replace the instance value with the term data.
+          $items[$id][$delta]['taxonomy_term'] = $terms[$item['tid']];
         }
-    }
-
-    if ($tids) {
-        $terms = taxonomy_term_load_multiple($tids);
-
-        // Iterate through the fieldable entities again to attach the loaded term
-        // data.
-        foreach ($entities as $id => $entity) {
-            $rekey = FALSE;
-
-            foreach ($items[$id] as $delta => $item) {
-                // Check whether the taxonomy term field instance value could be loaded.
-                if (isset($terms[$item['tid']])) {
-                    // Replace the instance value with the term data.
-                    $items[$id][$delta]['taxonomy_term'] = $terms[$item['tid']];
-                }
-                // Otherwise, unset the instance value, since the term does not exist.
-                else {
-                    unset($items[$id][$delta]);
-                    $rekey = TRUE;
-                }
-            }
-
-            if ($rekey) {
-                // Rekey the items array.
-                $items[$id] = array_values($items[$id]);
-            }
+        // Otherwise, unset the instance value, since the term does not exist.
+        else {
+          unset($items[$id][$delta]);
+          $rekey = TRUE;
         }
+      }
+
+      if ($rekey) {
+        // Rekey the items array.
+        $items[$id] = array_values($items[$id]);
+      }
     }
+  }
 }
 
 /**
@@ -1212,47 +1212,47 @@ function hook_field_formatter_prepare_view($entity_type, $entities, $field, $ins
  *   by numeric indexes starting from 0.
  */
 function hook_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
-    $element = array();
-    $settings = $display['settings'];
+  $element = array();
+  $settings = $display['settings'];
 
-    switch ($display['type']) {
-        case 'sample_field_formatter_simple':
-            // Common case: each value is displayed individually in a sub-element
-            // keyed by delta. The field.tpl.php template specifies the markup
-            // wrapping each value.
-            foreach ($items as $delta => $item) {
-                $element[$delta] = array('#markup' => $settings['some_setting'] . $item['value']);
-            }
-            break;
+  switch ($display['type']) {
+    case 'sample_field_formatter_simple':
+      // Common case: each value is displayed individually in a sub-element
+      // keyed by delta. The field.tpl.php template specifies the markup
+      // wrapping each value.
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array('#markup' => $settings['some_setting'] . $item['value']);
+      }
+      break;
 
-        case 'sample_field_formatter_themeable':
-            // More elaborate formatters can defer to a theme function for easier
-            // customization.
-            foreach ($items as $delta => $item) {
-                $element[$delta] = array(
-                    '#theme' => 'mymodule_theme_sample_field_formatter_themeable',
-                    '#data' => $item['value'],
-                    '#some_setting' => $settings['some_setting'],
-                );
-            }
-            break;
+    case 'sample_field_formatter_themeable':
+      // More elaborate formatters can defer to a theme function for easier
+      // customization.
+      foreach ($items as $delta => $item) {
+        $element[$delta] = array(
+          '#theme' => 'mymodule_theme_sample_field_formatter_themeable',
+          '#data' => $item['value'],
+          '#some_setting' => $settings['some_setting'],
+        );
+      }
+      break;
 
-        case 'sample_field_formatter_combined':
-            // Some formatters might need to display all values within a single piece
-            // of markup.
-            $rows = array();
-            foreach ($items as $delta => $item) {
-                $rows[] = array($delta, $item['value']);
-            }
-            $element[0] = array(
-                '#theme' => 'table',
-                '#header' => array(t('Delta'), t('Value')),
-                '#rows' => $rows,
-            );
-            break;
-    }
+    case 'sample_field_formatter_combined':
+      // Some formatters might need to display all values within a single piece
+      // of markup.
+      $rows = array();
+      foreach ($items as $delta => $item) {
+        $rows[] = array($delta, $item['value']);
+      }
+      $element[0] = array(
+        '#theme' => 'table',
+        '#header' => array(t('Delta'), t('Value')),
+        '#rows' => $rows,
+      );
+      break;
+  }
 
-    return $element;
+  return $element;
 }
 
 /**
@@ -1289,12 +1289,12 @@ function hook_field_formatter_view($entity_type, $entity, $field, $instance, $la
  *   is provided the default site language will be used.
  */
 function hook_field_attach_form($entity_type, $entity, &$form, &$form_state, $langcode) {
-    // Add a checkbox allowing a given field to be emptied.
-    // See hook_field_attach_submit() for the corresponding processing code.
-    $form['empty_field_foo'] = array(
-        '#type' => 'checkbox',
-        '#title' => t("Empty the 'field_foo' field"),
-    );
+  // Add a checkbox allowing a given field to be emptied.
+  // See hook_field_attach_submit() for the corresponding processing code.
+  $form['empty_field_foo'] = array(
+    '#type' => 'checkbox',
+    '#title' => t("Empty the 'field_foo' field"),
+  );
 }
 
 /**
@@ -1313,7 +1313,7 @@ function hook_field_attach_form($entity_type, $entity, &$form, &$form_state, $la
  * See field_attach_load() for details and arguments.
  */
 function hook_field_attach_load($entity_type, $entities, $age, $options) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -1336,19 +1336,19 @@ function hook_field_attach_load($entity_type, $entities, $age, $options) {
  *   - message: The human readable message to be displayed.
  */
 function hook_field_attach_validate($entity_type, $entity, &$errors) {
-    // Make sure any images in article nodes have an alt text.
-    if ($entity_type == 'node' && $entity->type == 'article' && !empty($entity->field_image)) {
-        foreach ($entity->field_image as $langcode => $items) {
-            foreach ($items as $delta => $item) {
-                if (!empty($item['fid']) && empty($item['alt'])) {
-                    $errors['field_image'][$langcode][$delta][] = array(
-                        'error' => 'field_example_invalid',
-                        'message' => t('All images in articles need to have an alternative text set.'),
-                    );
-                }
-            }
+  // Make sure any images in article nodes have an alt text.
+  if ($entity_type == 'node' && $entity->type == 'article' && !empty($entity->field_image)) {
+    foreach ($entity->field_image as $langcode => $items) {
+      foreach ($items as $delta => $item) {
+        if (!empty($item['fid']) && empty($item['alt'])) {
+          $errors['field_image'][$langcode][$delta][] = array(
+            'error' => 'field_example_invalid',
+            'message' => t('All images in articles need to have an alternative text set.'),
+          );
         }
+      }
     }
+  }
 }
 
 /**
@@ -1370,12 +1370,12 @@ function hook_field_attach_validate($entity_type, $entity, &$errors) {
  *   An associative array containing the current state of the form.
  */
 function hook_field_attach_submit($entity_type, $entity, $form, &$form_state) {
-    // Sample case of an 'Empty the field' checkbox added on the form, allowing
-    // a given field to be emptied.
-    $values = drupal_array_get_nested_value($form_state['values'], $form['#parents']);
-    if (!empty($values['empty_field_foo'])) {
-        unset($entity->field_foo);
-    }
+  // Sample case of an 'Empty the field' checkbox added on the form, allowing
+  // a given field to be emptied.
+  $values = drupal_array_get_nested_value($form_state['values'], $form['#parents']);
+  if (!empty($values['empty_field_foo'])) {
+    unset($entity->field_foo);
+  }
 }
 
 /**
@@ -1386,7 +1386,7 @@ function hook_field_attach_submit($entity_type, $entity, $form, &$form_state) {
  * See field_attach_presave() for details and arguments.
  */
 function hook_field_attach_presave($entity_type, $entity) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -1397,7 +1397,7 @@ function hook_field_attach_presave($entity_type, $entity) {
  * See field_attach_insert() for details and arguments.
  */
 function hook_field_attach_insert($entity_type, $entity) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -1408,7 +1408,7 @@ function hook_field_attach_insert($entity_type, $entity) {
  * See field_attach_update() for details and arguments.
  */
 function hook_field_attach_update($entity_type, $entity) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -1427,7 +1427,7 @@ function hook_field_attach_update($entity_type, $entity) {
  *   - element: The structured array containing the values ready for rendering.
  */
 function hook_field_attach_preprocess_alter(&$variables, $context) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -1438,7 +1438,7 @@ function hook_field_attach_preprocess_alter(&$variables, $context) {
  * See field_attach_delete() for details and arguments.
  */
 function hook_field_attach_delete($entity_type, $entity) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -1449,7 +1449,7 @@ function hook_field_attach_delete($entity_type, $entity) {
  * See field_attach_delete_revision() for details and arguments.
  */
 function hook_field_attach_delete_revision($entity_type, $entity) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -1473,10 +1473,10 @@ function hook_field_attach_delete_revision($entity_type, $entity) {
  * @see field_purge_data()
  */
 function hook_field_attach_purge($entity_type, $entity, $field, $instance) {
-    // find the corresponding data in mymodule and purge it
-    if ($entity_type == 'node' && $field->field_name == 'my_field_name') {
-        mymodule_remove_mydata($entity->nid);
-    }
+  // find the corresponding data in mymodule and purge it
+  if ($entity_type == 'node' && $field->field_name == 'my_field_name') {
+    mymodule_remove_mydata($entity->nid);
+  }
 }
 
 /**
@@ -1500,21 +1500,21 @@ function hook_field_attach_purge($entity_type, $entity, $field, $instance) {
  *   - language: The language code used for rendering.
  */
 function hook_field_attach_view_alter(&$output, $context) {
-    // Append RDF term mappings on displayed taxonomy links.
-    foreach (element_children($output) as $field_name) {
-        $element = &$output[$field_name];
-        if ($element['#field_type'] == 'taxonomy_term_reference' && $element['#formatter'] == 'taxonomy_term_reference_link') {
-            foreach ($element['#items'] as $delta => $item) {
-                $term = $item['taxonomy_term'];
-                if (!empty($term->rdf_mapping['rdftype'])) {
-                    $element[$delta]['#options']['attributes']['typeof'] = $term->rdf_mapping['rdftype'];
-                }
-                if (!empty($term->rdf_mapping['name']['predicates'])) {
-                    $element[$delta]['#options']['attributes']['property'] = $term->rdf_mapping['name']['predicates'];
-                }
-            }
+  // Append RDF term mappings on displayed taxonomy links.
+  foreach (element_children($output) as $field_name) {
+    $element = &$output[$field_name];
+    if ($element['#field_type'] == 'taxonomy_term_reference' && $element['#formatter'] == 'taxonomy_term_reference_link') {
+      foreach ($element['#items'] as $delta => $item) {
+        $term = $item['taxonomy_term'];
+        if (!empty($term->rdf_mapping['rdftype'])) {
+          $element[$delta]['#options']['attributes']['typeof'] = $term->rdf_mapping['rdftype'];
         }
+        if (!empty($term->rdf_mapping['name']['predicates'])) {
+          $element[$delta]['#options']['attributes']['property'] = $term->rdf_mapping['name']['predicates'];
+        }
+      }
     }
+  }
 }
 
 /**
@@ -1532,9 +1532,9 @@ function hook_field_attach_view_alter(&$output, $context) {
  *   - source_langcode: The source language from which translate.
  */
 function hook_field_attach_prepare_translation_alter(&$entity, $context) {
-    if ($context['entity_type'] == 'custom_entity_type') {
-        $entity->custom_field = $context['source_entity']->custom_field;
-    }
+  if ($context['entity_type'] == 'custom_entity_type') {
+    $entity->custom_field = $context['source_entity']->custom_field;
+  }
 }
 
 /**
@@ -1554,11 +1554,11 @@ function hook_field_attach_prepare_translation_alter(&$entity, $context) {
  * @ingroup field_language
  */
 function hook_field_language_alter(&$display_language, $context) {
-    // Do not apply core language fallback rules if they are disabled or if Locale
-    // is not registered as a translation handler.
-    if (variable_get('locale_field_language_fallback', TRUE) && field_has_translation_handler($context['entity_type'], 'locale')) {
-        locale_field_language_fallback($display_language, $context['entity'], $context['language']);
-    }
+  // Do not apply core language fallback rules if they are disabled or if Locale
+  // is not registered as a translation handler.
+  if (variable_get('locale_field_language_fallback', TRUE) && field_has_translation_handler($context['entity_type'], 'locale')) {
+    locale_field_language_fallback($display_language, $context['entity'], $context['language']);
+  }
 }
 
 /**
@@ -1577,12 +1577,12 @@ function hook_field_language_alter(&$display_language, $context) {
  * @ingroup field_language
  */
 function hook_field_available_languages_alter(&$languages, $context) {
-    // Add an unavailable language.
-    $languages[] = 'xx';
+  // Add an unavailable language.
+  $languages[] = 'xx';
 
-    // Remove an available language.
-    $index = array_search('yy', $languages);
-    unset($languages[$index]);
+  // Remove an available language.
+  $index = array_search('yy', $languages);
+  unset($languages[$index]);
 }
 
 /**
@@ -1593,9 +1593,9 @@ function hook_field_available_languages_alter(&$languages, $context) {
  * See field_attach_create_bundle() for details and arguments.
  */
 function hook_field_attach_create_bundle($entity_type, $bundle) {
-    // When a new bundle is created, the menu needs to be rebuilt to add the
-    // Field UI menu item tabs.
-    variable_set('menu_rebuild_needed', TRUE);
+  // When a new bundle is created, the menu needs to be rebuilt to add the
+  // Field UI menu item tabs.
+  variable_set('menu_rebuild_needed', TRUE);
 }
 
 /**
@@ -1606,15 +1606,15 @@ function hook_field_attach_create_bundle($entity_type, $bundle) {
  * See field_attach_rename_bundle() for details and arguments.
  */
 function hook_field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new) {
-    // Update the extra weights variable with new information.
-    if ($bundle_old !== $bundle_new) {
-        $extra_weights = variable_get('field_extra_weights', array());
-        if (isset($info[$entity_type][$bundle_old])) {
-            $extra_weights[$entity_type][$bundle_new] = $extra_weights[$entity_type][$bundle_old];
-            unset($extra_weights[$entity_type][$bundle_old]);
-            variable_set('field_extra_weights', $extra_weights);
-        }
+  // Update the extra weights variable with new information.
+  if ($bundle_old !== $bundle_new) {
+    $extra_weights = variable_get('field_extra_weights', array());
+    if (isset($info[$entity_type][$bundle_old])) {
+      $extra_weights[$entity_type][$bundle_new] = $extra_weights[$entity_type][$bundle_old];
+      unset($extra_weights[$entity_type][$bundle_old]);
+      variable_set('field_extra_weights', $extra_weights);
     }
+  }
 }
 
 /**
@@ -1631,12 +1631,12 @@ function hook_field_attach_rename_bundle($entity_type, $bundle_old, $bundle_new)
  *   deleted.
  */
 function hook_field_attach_delete_bundle($entity_type, $bundle, $instances) {
-    // Remove the extra weights variable information for this bundle.
-    $extra_weights = variable_get('field_extra_weights', array());
-    if (isset($extra_weights[$entity_type][$bundle])) {
-        unset($extra_weights[$entity_type][$bundle]);
-        variable_set('field_extra_weights', $extra_weights);
-    }
+  // Remove the extra weights variable information for this bundle.
+  $extra_weights = variable_get('field_extra_weights', array());
+  if (isset($extra_weights[$entity_type][$bundle])) {
+    unset($extra_weights[$entity_type][$bundle]);
+    variable_set('field_extra_weights', $extra_weights);
+  }
 }
 
 /**
@@ -1664,13 +1664,13 @@ function hook_field_attach_delete_bundle($entity_type, $bundle, $instances) {
  *     those settings.
  */
 function hook_field_storage_info() {
-    return array(
-        'field_sql_storage' => array(
-            'label' => t('Default SQL storage'),
-            'description' => t('Stores fields in the local SQL database, using per-field tables.'),
-            'settings' => array(),
-        ),
-    );
+  return array(
+    'field_sql_storage' => array(
+      'label' => t('Default SQL storage'),
+      'description' => t('Stores fields in the local SQL database, using per-field tables.'),
+      'settings' => array(),
+    ),
+  );
 }
 
 /**
@@ -1681,10 +1681,10 @@ function hook_field_storage_info() {
  *   hook_field_field_storage_info() implementations.
  */
 function hook_field_storage_info_alter(&$info) {
-    // Add a setting to a storage type.
-    $info['field_sql_storage']['settings'] += array(
-        'mymodule_additional_setting' => 'default value',
-    );
+  // Add a setting to a storage type.
+  $info['field_sql_storage']['settings'] += array(
+    'mymodule_additional_setting' => 'default value',
+  );
 }
 
 /**
@@ -1710,23 +1710,23 @@ function hook_field_storage_info_alter(&$info) {
  * @see hook_field_storage_details_alter()
  */
 function hook_field_storage_details($field) {
-    $details = array();
+  $details = array();
 
-    // Add field columns.
-    foreach ((array) $field['columns'] as $column_name => $attributes) {
-        $real_name = _field_sql_storage_columnname($field['field_name'], $column_name);
-        $columns[$column_name] = $real_name;
-    }
-    return array(
-        'sql' => array(
-            FIELD_LOAD_CURRENT => array(
-                _field_sql_storage_tablename($field) => $columns,
-            ),
-            FIELD_LOAD_REVISION => array(
-                _field_sql_storage_revision_tablename($field) => $columns,
-            ),
-        ),
-    );
+  // Add field columns.
+  foreach ((array) $field['columns'] as $column_name => $attributes) {
+    $real_name = _field_sql_storage_columnname($field['field_name'], $column_name);
+    $columns[$column_name] = $real_name;
+  }
+  return array(
+    'sql' => array(
+      FIELD_LOAD_CURRENT => array(
+        _field_sql_storage_tablename($field) => $columns,
+      ),
+      FIELD_LOAD_REVISION => array(
+        _field_sql_storage_revision_tablename($field) => $columns,
+      ),
+    ),
+  );
 }
 
 /**
@@ -1741,20 +1741,20 @@ function hook_field_storage_details($field) {
  * @see hook_field_storage_details()
  */
 function hook_field_storage_details_alter(&$details, $field) {
-    if ($field['field_name'] == 'field_of_interest') {
-        $columns = array();
-        foreach ((array) $field['columns'] as $column_name => $attributes) {
-            $columns[$column_name] = $column_name;
-        }
-        $details['drupal_variables'] = array(
-            FIELD_LOAD_CURRENT => array(
-                'moon' => $columns,
-            ),
-            FIELD_LOAD_REVISION => array(
-                'mars' => $columns,
-            ),
-        );
+  if ($field['field_name'] == 'field_of_interest') {
+    $columns = array();
+    foreach ((array) $field['columns'] as $column_name => $attributes) {
+      $columns[$column_name] = $column_name;
     }
+    $details['drupal_variables'] = array(
+      FIELD_LOAD_CURRENT => array(
+        'moon' => $columns,
+      ),
+      FIELD_LOAD_REVISION => array(
+        'mars' => $columns,
+      ),
+    );
+  }
 }
 
 /**
@@ -1785,51 +1785,51 @@ function hook_field_storage_details_alter(&$details, $field) {
  *     loaded.
  */
 function hook_field_storage_load($entity_type, $entities, $age, $fields, $options) {
-    $load_current = $age == FIELD_LOAD_CURRENT;
+  $load_current = $age == FIELD_LOAD_CURRENT;
 
-    foreach ($fields as $field_id => $ids) {
-        // By the time this hook runs, the relevant field definitions have been
-        // populated and cached in FieldInfo, so calling field_info_field_by_id()
-        // on each field individually is more efficient than loading all fields in
-        // memory upfront with field_info_field_by_ids().
-        $field = field_info_field_by_id($field_id);
-        $field_name = $field['field_name'];
-        $table = $load_current ? _field_sql_storage_tablename($field) : _field_sql_storage_revision_tablename($field);
+  foreach ($fields as $field_id => $ids) {
+    // By the time this hook runs, the relevant field definitions have been
+    // populated and cached in FieldInfo, so calling field_info_field_by_id()
+    // on each field individually is more efficient than loading all fields in
+    // memory upfront with field_info_field_by_ids().
+    $field = field_info_field_by_id($field_id);
+    $field_name = $field['field_name'];
+    $table = $load_current ? _field_sql_storage_tablename($field) : _field_sql_storage_revision_tablename($field);
 
-        $query = db_select($table, 't')
-            ->fields('t')
-            ->condition('entity_type', $entity_type)
-            ->condition($load_current ? 'entity_id' : 'revision_id', $ids, 'IN')
-            ->condition('language', field_available_languages($entity_type, $field), 'IN')
-            ->orderBy('delta');
+    $query = db_select($table, 't')
+      ->fields('t')
+      ->condition('entity_type', $entity_type)
+      ->condition($load_current ? 'entity_id' : 'revision_id', $ids, 'IN')
+      ->condition('language', field_available_languages($entity_type, $field), 'IN')
+      ->orderBy('delta');
 
-        if (empty($options['deleted'])) {
-            $query->condition('deleted', 0);
-        }
-
-        $results = $query->execute();
-
-        $delta_count = array();
-        foreach ($results as $row) {
-            if (!isset($delta_count[$row->entity_id][$row->language])) {
-                $delta_count[$row->entity_id][$row->language] = 0;
-            }
-
-            if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || $delta_count[$row->entity_id][$row->language] < $field['cardinality']) {
-                $item = array();
-                // For each column declared by the field, populate the item
-                // from the prefixed database column.
-                foreach ($field['columns'] as $column => $attributes) {
-                    $column_name = _field_sql_storage_columnname($field_name, $column);
-                    $item[$column] = $row->$column_name;
-                }
-
-                // Add the item to the field values for the entity.
-                $entities[$row->entity_id]->{$field_name}[$row->language][] = $item;
-                $delta_count[$row->entity_id][$row->language]++;
-            }
-        }
+    if (empty($options['deleted'])) {
+      $query->condition('deleted', 0);
     }
+
+    $results = $query->execute();
+
+    $delta_count = array();
+    foreach ($results as $row) {
+      if (!isset($delta_count[$row->entity_id][$row->language])) {
+        $delta_count[$row->entity_id][$row->language] = 0;
+      }
+
+      if ($field['cardinality'] == FIELD_CARDINALITY_UNLIMITED || $delta_count[$row->entity_id][$row->language] < $field['cardinality']) {
+        $item = array();
+        // For each column declared by the field, populate the item
+        // from the prefixed database column.
+        foreach ($field['columns'] as $column => $attributes) {
+          $column_name = _field_sql_storage_columnname($field_name, $column);
+          $item[$column] = $row->$column_name;
+        }
+
+        // Add the item to the field values for the entity.
+        $entities[$row->entity_id]->{$field_name}[$row->language][] = $item;
+        $delta_count[$row->entity_id][$row->language]++;
+      }
+    }
+  }
 }
 
 /**
@@ -1850,83 +1850,83 @@ function hook_field_storage_load($entity_type, $entities, $age, $fields, $option
  *   array are field IDs.
  */
 function hook_field_storage_write($entity_type, $entity, $op, $fields) {
-    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
-    if (!isset($vid)) {
-        $vid = $id;
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  if (!isset($vid)) {
+    $vid = $id;
+  }
+
+  foreach ($fields as $field_id) {
+    $field = field_info_field_by_id($field_id);
+    $field_name = $field['field_name'];
+    $table_name = _field_sql_storage_tablename($field);
+    $revision_name = _field_sql_storage_revision_tablename($field);
+
+    $all_languages = field_available_languages($entity_type, $field);
+    $field_languages = array_intersect($all_languages, array_keys((array) $entity->$field_name));
+
+    // Delete and insert, rather than update, in case a value was added.
+    if ($op == FIELD_STORAGE_UPDATE) {
+      // Delete languages present in the incoming $entity->$field_name.
+      // Delete all languages if $entity->$field_name is empty.
+      $languages = !empty($entity->$field_name) ? $field_languages : $all_languages;
+      if ($languages) {
+        db_delete($table_name)
+          ->condition('entity_type', $entity_type)
+          ->condition('entity_id', $id)
+          ->condition('language', $languages, 'IN')
+          ->execute();
+        db_delete($revision_name)
+          ->condition('entity_type', $entity_type)
+          ->condition('entity_id', $id)
+          ->condition('revision_id', $vid)
+          ->condition('language', $languages, 'IN')
+          ->execute();
+      }
     }
 
-    foreach ($fields as $field_id) {
-        $field = field_info_field_by_id($field_id);
-        $field_name = $field['field_name'];
-        $table_name = _field_sql_storage_tablename($field);
-        $revision_name = _field_sql_storage_revision_tablename($field);
+    // Prepare the multi-insert query.
+    $do_insert = FALSE;
+    $columns = array('entity_type', 'entity_id', 'revision_id', 'bundle', 'delta', 'language');
+    foreach ($field['columns'] as $column => $attributes) {
+      $columns[] = _field_sql_storage_columnname($field_name, $column);
+    }
+    $query = db_insert($table_name)->fields($columns);
+    $revision_query = db_insert($revision_name)->fields($columns);
 
-        $all_languages = field_available_languages($entity_type, $field);
-        $field_languages = array_intersect($all_languages, array_keys((array) $entity->$field_name));
-
-        // Delete and insert, rather than update, in case a value was added.
-        if ($op == FIELD_STORAGE_UPDATE) {
-            // Delete languages present in the incoming $entity->$field_name.
-            // Delete all languages if $entity->$field_name is empty.
-            $languages = !empty($entity->$field_name) ? $field_languages : $all_languages;
-            if ($languages) {
-                db_delete($table_name)
-                    ->condition('entity_type', $entity_type)
-                    ->condition('entity_id', $id)
-                    ->condition('language', $languages, 'IN')
-                    ->execute();
-                db_delete($revision_name)
-                    ->condition('entity_type', $entity_type)
-                    ->condition('entity_id', $id)
-                    ->condition('revision_id', $vid)
-                    ->condition('language', $languages, 'IN')
-                    ->execute();
-            }
-        }
-
-        // Prepare the multi-insert query.
-        $do_insert = FALSE;
-        $columns = array('entity_type', 'entity_id', 'revision_id', 'bundle', 'delta', 'language');
+    foreach ($field_languages as $langcode) {
+      $items = (array) $entity->{$field_name}[$langcode];
+      $delta_count = 0;
+      foreach ($items as $delta => $item) {
+        // We now know we have someting to insert.
+        $do_insert = TRUE;
+        $record = array(
+          'entity_type' => $entity_type,
+          'entity_id' => $id,
+          'revision_id' => $vid,
+          'bundle' => $bundle,
+          'delta' => $delta,
+          'language' => $langcode,
+        );
         foreach ($field['columns'] as $column => $attributes) {
-            $columns[] = _field_sql_storage_columnname($field_name, $column);
+          $record[_field_sql_storage_columnname($field_name, $column)] = isset($item[$column]) ? $item[$column] : NULL;
         }
-        $query = db_insert($table_name)->fields($columns);
-        $revision_query = db_insert($revision_name)->fields($columns);
-
-        foreach ($field_languages as $langcode) {
-            $items = (array) $entity->{$field_name}[$langcode];
-            $delta_count = 0;
-            foreach ($items as $delta => $item) {
-                // We now know we have someting to insert.
-                $do_insert = TRUE;
-                $record = array(
-                    'entity_type' => $entity_type,
-                    'entity_id' => $id,
-                    'revision_id' => $vid,
-                    'bundle' => $bundle,
-                    'delta' => $delta,
-                    'language' => $langcode,
-                );
-                foreach ($field['columns'] as $column => $attributes) {
-                    $record[_field_sql_storage_columnname($field_name, $column)] = isset($item[$column]) ? $item[$column] : NULL;
-                }
-                $query->values($record);
-                if (isset($vid)) {
-                    $revision_query->values($record);
-                }
-
-                if ($field['cardinality'] != FIELD_CARDINALITY_UNLIMITED && ++$delta_count == $field['cardinality']) {
-                    break;
-                }
-            }
+        $query->values($record);
+        if (isset($vid)) {
+          $revision_query->values($record);
         }
 
-        // Execute the query if we have values to insert.
-        if ($do_insert) {
-            $query->execute();
-            $revision_query->execute();
+        if ($field['cardinality'] != FIELD_CARDINALITY_UNLIMITED && ++$delta_count == $field['cardinality']) {
+          break;
         }
+      }
     }
+
+    // Execute the query if we have values to insert.
+    if ($do_insert) {
+      $query->execute();
+      $revision_query->execute();
+    }
+  }
 }
 
 /**
@@ -1944,14 +1944,14 @@ function hook_field_storage_write($entity_type, $entity, $op, $fields) {
  *   array are field IDs.
  */
 function hook_field_storage_delete($entity_type, $entity, $fields) {
-    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
-    foreach (field_info_instances($entity_type, $bundle) as $instance) {
-        if (isset($fields[$instance['field_id']])) {
-            $field = field_info_field_by_id($instance['field_id']);
-            field_sql_storage_field_storage_purge($entity_type, $entity, $field, $instance);
-        }
+  foreach (field_info_instances($entity_type, $bundle) as $instance) {
+    if (isset($fields[$instance['field_id']])) {
+      $field = field_info_field_by_id($instance['field_id']);
+      field_sql_storage_field_storage_purge($entity_type, $entity, $field, $instance);
     }
+  }
 }
 
 /**
@@ -1974,19 +1974,19 @@ function hook_field_storage_delete($entity_type, $entity, $fields) {
  *   array are field IDs.
  */
 function hook_field_storage_delete_revision($entity_type, $entity, $fields) {
-    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
-    if (isset($vid)) {
-        foreach ($fields as $field_id) {
-            $field = field_info_field_by_id($field_id);
-            $revision_name = _field_sql_storage_revision_tablename($field);
-            db_delete($revision_name)
-                ->condition('entity_type', $entity_type)
-                ->condition('entity_id', $id)
-                ->condition('revision_id', $vid)
-                ->execute();
-        }
+  if (isset($vid)) {
+    foreach ($fields as $field_id) {
+      $field = field_info_field_by_id($field_id);
+      $revision_name = _field_sql_storage_revision_tablename($field);
+      db_delete($revision_name)
+        ->condition('entity_type', $entity_type)
+        ->condition('entity_id', $id)
+        ->condition('revision_id', $vid)
+        ->execute();
     }
+  }
 }
 
 /**
@@ -2004,104 +2004,104 @@ function hook_field_storage_delete_revision($entity_type, $entity, $fields) {
  *   See EntityFieldQuery::execute() for the return values.
  */
 function hook_field_storage_query($query) {
-    $groups = array();
-    if ($query->age == FIELD_LOAD_CURRENT) {
-        $tablename_function = '_field_sql_storage_tablename';
-        $id_key = 'entity_id';
+  $groups = array();
+  if ($query->age == FIELD_LOAD_CURRENT) {
+    $tablename_function = '_field_sql_storage_tablename';
+    $id_key = 'entity_id';
+  }
+  else {
+    $tablename_function = '_field_sql_storage_revision_tablename';
+    $id_key = 'revision_id';
+  }
+  $table_aliases = array();
+  // Add tables for the fields used.
+  foreach ($query->fields as $key => $field) {
+    $tablename = $tablename_function($field);
+    // Every field needs a new table.
+    $table_alias = $tablename . $key;
+    $table_aliases[$key] = $table_alias;
+    if ($key) {
+      $select_query->join($tablename, $table_alias, "$table_alias.entity_type = $field_base_table.entity_type AND $table_alias.$id_key = $field_base_table.$id_key");
     }
     else {
-        $tablename_function = '_field_sql_storage_revision_tablename';
-        $id_key = 'revision_id';
+      $select_query = db_select($tablename, $table_alias);
+      $select_query->addTag('entity_field_access');
+      $select_query->addMetaData('base_table', $tablename);
+      $select_query->fields($table_alias, array('entity_type', 'entity_id', 'revision_id', 'bundle'));
+      $field_base_table = $table_alias;
     }
-    $table_aliases = array();
-    // Add tables for the fields used.
-    foreach ($query->fields as $key => $field) {
-        $tablename = $tablename_function($field);
-        // Every field needs a new table.
-        $table_alias = $tablename . $key;
-        $table_aliases[$key] = $table_alias;
-        if ($key) {
-            $select_query->join($tablename, $table_alias, "$table_alias.entity_type = $field_base_table.entity_type AND $table_alias.$id_key = $field_base_table.$id_key");
+    if ($field['cardinality'] != 1) {
+      $select_query->distinct();
+    }
+  }
+
+  // Add field conditions.
+  foreach ($query->fieldConditions as $key => $condition) {
+    $table_alias = $table_aliases[$key];
+    $field = $condition['field'];
+    // Add the specified condition.
+    $sql_field = "$table_alias." . _field_sql_storage_columnname($field['field_name'], $condition['column']);
+    $query->addCondition($select_query, $sql_field, $condition);
+    // Add delta / language group conditions.
+    foreach (array('delta', 'language') as $column) {
+      if (isset($condition[$column . '_group'])) {
+        $group_name = $condition[$column . '_group'];
+        if (!isset($groups[$column][$group_name])) {
+          $groups[$column][$group_name] = $table_alias;
         }
         else {
-            $select_query = db_select($tablename, $table_alias);
-            $select_query->addTag('entity_field_access');
-            $select_query->addMetaData('base_table', $tablename);
-            $select_query->fields($table_alias, array('entity_type', 'entity_id', 'revision_id', 'bundle'));
-            $field_base_table = $table_alias;
+          $select_query->where("$table_alias.$column = " . $groups[$column][$group_name] . ".$column");
         }
-        if ($field['cardinality'] != 1) {
-            $select_query->distinct();
-        }
+      }
     }
+  }
 
-    // Add field conditions.
-    foreach ($query->fieldConditions as $key => $condition) {
-        $table_alias = $table_aliases[$key];
-        $field = $condition['field'];
-        // Add the specified condition.
-        $sql_field = "$table_alias." . _field_sql_storage_columnname($field['field_name'], $condition['column']);
-        $query->addCondition($select_query, $sql_field, $condition);
-        // Add delta / language group conditions.
-        foreach (array('delta', 'language') as $column) {
-            if (isset($condition[$column . '_group'])) {
-                $group_name = $condition[$column . '_group'];
-                if (!isset($groups[$column][$group_name])) {
-                    $groups[$column][$group_name] = $table_alias;
-                }
-                else {
-                    $select_query->where("$table_alias.$column = " . $groups[$column][$group_name] . ".$column");
-                }
-            }
-        }
-    }
+  if (isset($query->deleted)) {
+    $select_query->condition("$field_base_table.deleted", (int) $query->deleted);
+  }
 
-    if (isset($query->deleted)) {
-        $select_query->condition("$field_base_table.deleted", (int) $query->deleted);
+  // Is there a need to sort the query by property?
+  $has_property_order = FALSE;
+  foreach ($query->order as $order) {
+    if ($order['type'] == 'property') {
+      $has_property_order = TRUE;
     }
+  }
 
-    // Is there a need to sort the query by property?
-    $has_property_order = FALSE;
-    foreach ($query->order as $order) {
-        if ($order['type'] == 'property') {
-            $has_property_order = TRUE;
-        }
+  if ($query->propertyConditions || $has_property_order) {
+    if (empty($query->entityConditions['entity_type']['value'])) {
+      throw new EntityFieldQueryException('Property conditions and orders must have an entity type defined.');
     }
+    $entity_type = $query->entityConditions['entity_type']['value'];
+    $entity_base_table = _field_sql_storage_query_join_entity($select_query, $entity_type, $field_base_table);
+    $query->entityConditions['entity_type']['operator'] = '=';
+    foreach ($query->propertyConditions as $property_condition) {
+      $query->addCondition($select_query, "$entity_base_table." . $property_condition['column'], $property_condition);
+    }
+  }
+  foreach ($query->entityConditions as $key => $condition) {
+    $query->addCondition($select_query, "$field_base_table.$key", $condition);
+  }
 
-    if ($query->propertyConditions || $has_property_order) {
-        if (empty($query->entityConditions['entity_type']['value'])) {
-            throw new EntityFieldQueryException('Property conditions and orders must have an entity type defined.');
-        }
-        $entity_type = $query->entityConditions['entity_type']['value'];
-        $entity_base_table = _field_sql_storage_query_join_entity($select_query, $entity_type, $field_base_table);
-        $query->entityConditions['entity_type']['operator'] = '=';
-        foreach ($query->propertyConditions as $property_condition) {
-            $query->addCondition($select_query, "$entity_base_table." . $property_condition['column'], $property_condition);
-        }
+  // Order the query.
+  foreach ($query->order as $order) {
+    if ($order['type'] == 'entity') {
+      $key = $order['specifier'];
+      $select_query->orderBy("$field_base_table.$key", $order['direction']);
     }
-    foreach ($query->entityConditions as $key => $condition) {
-        $query->addCondition($select_query, "$field_base_table.$key", $condition);
+    elseif ($order['type'] == 'field') {
+      $specifier = $order['specifier'];
+      $field = $specifier['field'];
+      $table_alias = $table_aliases[$specifier['index']];
+      $sql_field = "$table_alias." . _field_sql_storage_columnname($field['field_name'], $specifier['column']);
+      $select_query->orderBy($sql_field, $order['direction']);
     }
+    elseif ($order['type'] == 'property') {
+      $select_query->orderBy("$entity_base_table." . $order['specifier'], $order['direction']);
+    }
+  }
 
-    // Order the query.
-    foreach ($query->order as $order) {
-        if ($order['type'] == 'entity') {
-            $key = $order['specifier'];
-            $select_query->orderBy("$field_base_table.$key", $order['direction']);
-        }
-        elseif ($order['type'] == 'field') {
-            $specifier = $order['specifier'];
-            $field = $specifier['field'];
-            $table_alias = $table_aliases[$specifier['index']];
-            $sql_field = "$table_alias." . _field_sql_storage_columnname($field['field_name'], $specifier['column']);
-            $select_query->orderBy($sql_field, $order['direction']);
-        }
-        elseif ($order['type'] == 'property') {
-            $select_query->orderBy("$entity_base_table." . $order['specifier'], $order['direction']);
-        }
-    }
-
-    return $query->finishQuery($select_query, $id_key);
+  return $query->finishQuery($select_query, $id_key);
 }
 
 /**
@@ -2115,11 +2115,11 @@ function hook_field_storage_query($query) {
  *   The field structure being created.
  */
 function hook_field_storage_create_field($field) {
-    $schema = _field_sql_storage_schema($field);
-    foreach ($schema as $name => $table) {
-        db_create_table($name, $table);
-    }
-    drupal_get_schema(NULL, TRUE);
+  $schema = _field_sql_storage_schema($field);
+  foreach ($schema as $name => $table) {
+    db_create_table($name, $table);
+  }
+  drupal_get_schema(NULL, TRUE);
 }
 
 /**
@@ -2132,21 +2132,21 @@ function hook_field_storage_create_field($field) {
  *   The field being deleted.
  */
 function hook_field_storage_delete_field($field) {
-    // Mark all data associated with the field for deletion.
-    $field['deleted'] = 0;
-    $table = _field_sql_storage_tablename($field);
-    $revision_table = _field_sql_storage_revision_tablename($field);
-    db_update($table)
-        ->fields(array('deleted' => 1))
-        ->execute();
+  // Mark all data associated with the field for deletion.
+  $field['deleted'] = 0;
+  $table = _field_sql_storage_tablename($field);
+  $revision_table = _field_sql_storage_revision_tablename($field);
+  db_update($table)
+    ->fields(array('deleted' => 1))
+    ->execute();
 
-    // Move the table to a unique name while the table contents are being deleted.
-    $field['deleted'] = 1;
-    $new_table = _field_sql_storage_tablename($field);
-    $revision_new_table = _field_sql_storage_revision_tablename($field);
-    db_rename_table($table, $new_table);
-    db_rename_table($revision_table, $revision_new_table);
-    drupal_get_schema(NULL, TRUE);
+  // Move the table to a unique name while the table contents are being deleted.
+  $field['deleted'] = 1;
+  $new_table = _field_sql_storage_tablename($field);
+  $revision_new_table = _field_sql_storage_revision_tablename($field);
+  db_rename_table($table, $new_table);
+  db_rename_table($revision_table, $revision_new_table);
+  drupal_get_schema(NULL, TRUE);
 }
 
 /**
@@ -2159,19 +2159,19 @@ function hook_field_storage_delete_field($field) {
  *   The instance being deleted.
  */
 function hook_field_storage_delete_instance($instance) {
-    $field = field_info_field($instance['field_name']);
-    $table_name = _field_sql_storage_tablename($field);
-    $revision_name = _field_sql_storage_revision_tablename($field);
-    db_update($table_name)
-        ->fields(array('deleted' => 1))
-        ->condition('entity_type', $instance['entity_type'])
-        ->condition('bundle', $instance['bundle'])
-        ->execute();
-    db_update($revision_name)
-        ->fields(array('deleted' => 1))
-        ->condition('entity_type', $instance['entity_type'])
-        ->condition('bundle', $instance['bundle'])
-        ->execute();
+  $field = field_info_field($instance['field_name']);
+  $table_name = _field_sql_storage_tablename($field);
+  $revision_name = _field_sql_storage_revision_tablename($field);
+  db_update($table_name)
+    ->fields(array('deleted' => 1))
+    ->condition('entity_type', $instance['entity_type'])
+    ->condition('bundle', $instance['bundle'])
+    ->execute();
+  db_update($revision_name)
+    ->fields(array('deleted' => 1))
+    ->condition('entity_type', $instance['entity_type'])
+    ->condition('bundle', $instance['bundle'])
+    ->execute();
 }
 
 /**
@@ -2208,7 +2208,7 @@ function hook_field_storage_delete_instance($instance) {
  *     loaded.
  */
 function hook_field_storage_pre_load($entity_type, $entities, $age, &$skip_fields, $options) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2229,23 +2229,23 @@ function hook_field_storage_pre_load($entity_type, $entities, $age, &$skip_field
  *   Saved field IDs are set set as keys in $skip_fields.
  */
 function hook_field_storage_pre_insert($entity_type, $entity, &$skip_fields) {
-    if ($entity_type == 'node' && $entity->status && _forum_node_check_node_type($entity)) {
-        $query = db_insert('forum_index')->fields(array('nid', 'title', 'tid', 'sticky', 'created', 'comment_count', 'last_comment_timestamp'));
-        foreach ($entity->taxonomy_forums as $language) {
-            foreach ($language as $delta) {
-                $query->values(array(
-                    'nid' => $entity->nid,
-                    'title' => $entity->title,
-                    'tid' => $delta['value'],
-                    'sticky' => $entity->sticky,
-                    'created' => $entity->created,
-                    'comment_count' => 0,
-                    'last_comment_timestamp' => $entity->created,
-                ));
-            }
-        }
-        $query->execute();
+  if ($entity_type == 'node' && $entity->status && _forum_node_check_node_type($entity)) {
+    $query = db_insert('forum_index')->fields(array('nid', 'title', 'tid', 'sticky', 'created', 'comment_count', 'last_comment_timestamp'));
+    foreach ($entity->taxonomy_forums as $language) {
+      foreach ($language as $delta) {
+        $query->values(array(
+          'nid' => $entity->nid,
+          'title' => $entity->title,
+          'tid' => $delta['value'],
+          'sticky' => $entity->sticky,
+          'created' => $entity->created,
+          'comment_count' => 0,
+          'last_comment_timestamp' => $entity->created,
+        ));
+      }
     }
+    $query->execute();
+  }
 }
 
 /**
@@ -2266,38 +2266,38 @@ function hook_field_storage_pre_insert($entity_type, $entity, &$skip_fields) {
  *   Saved field IDs are set set as keys in $skip_fields.
  */
 function hook_field_storage_pre_update($entity_type, $entity, &$skip_fields) {
-    $first_call = &drupal_static(__FUNCTION__, array());
+  $first_call = &drupal_static(__FUNCTION__, array());
 
-    if ($entity_type == 'node' && $entity->status && _forum_node_check_node_type($entity)) {
-        // We don't maintain data for old revisions, so clear all previous values
-        // from the table. Since this hook runs once per field, per entity, make
-        // sure we only wipe values once.
-        if (!isset($first_call[$entity->nid])) {
-            $first_call[$entity->nid] = FALSE;
-            db_delete('forum_index')->condition('nid', $entity->nid)->execute();
-        }
-        // Only save data to the table if the node is published.
-        if ($entity->status) {
-            $query = db_insert('forum_index')->fields(array('nid', 'title', 'tid', 'sticky', 'created', 'comment_count', 'last_comment_timestamp'));
-            foreach ($entity->taxonomy_forums as $language) {
-                foreach ($language as $delta) {
-                    $query->values(array(
-                        'nid' => $entity->nid,
-                        'title' => $entity->title,
-                        'tid' => $delta['value'],
-                        'sticky' => $entity->sticky,
-                        'created' => $entity->created,
-                        'comment_count' => 0,
-                        'last_comment_timestamp' => $entity->created,
-                    ));
-                }
-            }
-            $query->execute();
-            // The logic for determining last_comment_count is fairly complex, so
-            // call _forum_update_forum_index() too.
-            _forum_update_forum_index($entity->nid);
-        }
+  if ($entity_type == 'node' && $entity->status && _forum_node_check_node_type($entity)) {
+    // We don't maintain data for old revisions, so clear all previous values
+    // from the table. Since this hook runs once per field, per entity, make
+    // sure we only wipe values once.
+    if (!isset($first_call[$entity->nid])) {
+      $first_call[$entity->nid] = FALSE;
+      db_delete('forum_index')->condition('nid', $entity->nid)->execute();
     }
+    // Only save data to the table if the node is published.
+    if ($entity->status) {
+      $query = db_insert('forum_index')->fields(array('nid', 'title', 'tid', 'sticky', 'created', 'comment_count', 'last_comment_timestamp'));
+      foreach ($entity->taxonomy_forums as $language) {
+        foreach ($language as $delta) {
+          $query->values(array(
+            'nid' => $entity->nid,
+            'title' => $entity->title,
+            'tid' => $delta['value'],
+            'sticky' => $entity->sticky,
+            'created' => $entity->created,
+            'comment_count' => 0,
+            'last_comment_timestamp' => $entity->created,
+          ));
+        }
+      }
+      $query->execute();
+      // The logic for determining last_comment_count is fairly complex, so
+      // call _forum_update_forum_index() too.
+      _forum_update_forum_index($entity->nid);
+    }
+  }
 }
 
 /**
@@ -2325,13 +2325,13 @@ function hook_field_storage_pre_update($entity_type, $entity, &$skip_fields) {
  * @ingroup field_info
  */
 function hook_field_info_max_weight($entity_type, $bundle, $context) {
-    $weights = array();
+  $weights = array();
 
-    foreach (my_module_entity_additions($entity_type, $bundle, $context) as $addition) {
-        $weights[] = $addition['weight'];
-    }
+  foreach (my_module_entity_additions($entity_type, $bundle, $context) as $addition) {
+    $weights[] = $addition['weight'];
+  }
 
-    return $weights ? max($weights) : NULL;
+  return $weights ? max($weights) : NULL;
 }
 
 /**
@@ -2364,14 +2364,14 @@ function hook_field_info_max_weight($entity_type, $bundle, $context) {
  * @see hook_field_display_ENTITY_TYPE_alter()
  */
 function hook_field_display_alter(&$display, $context) {
-    // Leave field labels out of the search index.
-    // Note: The check against $context['entity_type'] == 'node' could be avoided
-    // by using hook_field_display_node_alter() instead of
-    // hook_field_display_alter(), resulting in less function calls when
-    // rendering non-node entities.
-    if ($context['entity_type'] == 'node' && $context['view_mode'] == 'search_index') {
-        $display['label'] = 'hidden';
-    }
+  // Leave field labels out of the search index.
+  // Note: The check against $context['entity_type'] == 'node' could be avoided
+  // by using hook_field_display_node_alter() instead of
+  // hook_field_display_alter(), resulting in less function calls when
+  // rendering non-node entities.
+  if ($context['entity_type'] == 'node' && $context['view_mode'] == 'search_index') {
+    $display['label'] = 'hidden';
+  }
 }
 
 /**
@@ -2399,10 +2399,10 @@ function hook_field_display_alter(&$display, $context) {
  * @see hook_field_display_alter()
  */
 function hook_field_display_ENTITY_TYPE_alter(&$display, $context) {
-    // Leave field labels out of the search index.
-    if ($context['view_mode'] == 'search_index') {
-        $display['label'] = 'hidden';
-    }
+  // Leave field labels out of the search index.
+  if ($context['view_mode'] == 'search_index') {
+    $display['label'] = 'hidden';
+  }
 }
 
 /**
@@ -2428,9 +2428,9 @@ function hook_field_display_ENTITY_TYPE_alter(&$display, $context) {
  * @ingroup field_types
  */
 function hook_field_extra_fields_display_alter(&$displays, $context) {
-    if ($context['entity_type'] == 'taxonomy_term' && $context['view_mode'] == 'full') {
-        $displays['description']['visible'] = FALSE;
-    }
+  if ($context['entity_type'] == 'taxonomy_term' && $context['view_mode'] == 'full') {
+    $displays['description']['visible'] = FALSE;
+  }
 }
 
 /**
@@ -2459,12 +2459,12 @@ function hook_field_extra_fields_display_alter(&$displays, $context) {
  * @ingroup field_widget
  */
 function hook_field_widget_properties_ENTITY_TYPE_alter(&$widget, $context) {
-    // Change a widget's type according to the time of day.
-    $field = $context['field'];
-    if ($field['field_name'] == 'field_foo') {
-        $time = date('H');
-        $widget['type'] = $time < 12 ? 'widget_am' : 'widget_pm';
-    }
+  // Change a widget's type according to the time of day.
+  $field = $context['field'];
+  if ($field['field_name'] == 'field_foo') {
+    $time = date('H');
+    $widget['type'] = $time < 12 ? 'widget_am' : 'widget_pm';
+  }
 }
 
 /**
@@ -2482,7 +2482,7 @@ function hook_field_widget_properties_ENTITY_TYPE_alter(&$widget, $context) {
  *   The field just created.
  */
 function hook_field_create_field($field) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2495,7 +2495,7 @@ function hook_field_create_field($field) {
  *   The instance just created.
  */
 function hook_field_create_instance($instance) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2518,23 +2518,23 @@ function hook_field_create_instance($instance) {
  *   Whether any data already exists for this field.
  */
 function hook_field_update_forbid($field, $prior_field, $has_data) {
-    // A 'list' field stores integer keys mapped to display values. If
-    // the new field will have fewer values, and any data exists for the
-    // abandoned keys, the field will have no way to display them. So,
-    // forbid such an update.
-    if ($has_data && count($field['settings']['allowed_values']) < count($prior_field['settings']['allowed_values'])) {
-        // Identify the keys that will be lost.
-        $lost_keys = array_diff(array_keys($field['settings']['allowed_values']), array_keys($prior_field['settings']['allowed_values']));
-        // If any data exist for those keys, forbid the update.
-        $query = new EntityFieldQuery();
-        $found = $query
-            ->fieldCondition($prior_field['field_name'], 'value', $lost_keys)
-            ->range(0, 1)
-            ->execute();
-        if ($found) {
-            throw new FieldUpdateForbiddenException("Cannot update a list field not to include keys with existing data");
-        }
+  // A 'list' field stores integer keys mapped to display values. If
+  // the new field will have fewer values, and any data exists for the
+  // abandoned keys, the field will have no way to display them. So,
+  // forbid such an update.
+  if ($has_data && count($field['settings']['allowed_values']) < count($prior_field['settings']['allowed_values'])) {
+    // Identify the keys that will be lost.
+    $lost_keys = array_diff(array_keys($field['settings']['allowed_values']), array_keys($prior_field['settings']['allowed_values']));
+    // If any data exist for those keys, forbid the update.
+    $query = new EntityFieldQuery();
+    $found = $query
+      ->fieldCondition($prior_field['field_name'], 'value', $lost_keys)
+      ->range(0, 1)
+      ->execute();
+    if ($found) {
+      throw new FieldUpdateForbiddenException("Cannot update a list field not to include keys with existing data");
     }
+  }
 }
 
 /**
@@ -2550,8 +2550,8 @@ function hook_field_update_forbid($field, $prior_field, $has_data) {
  *   Whether any data already exists for this field.
  */
 function hook_field_update_field($field, $prior_field, $has_data) {
-    // Reset the static value that keeps track of allowed values for list fields.
-    drupal_static_reset('list_allowed_values');
+  // Reset the static value that keeps track of allowed values for list fields.
+  drupal_static_reset('list_allowed_values');
 }
 
 /**
@@ -2563,7 +2563,7 @@ function hook_field_update_field($field, $prior_field, $has_data) {
  *   The field just deleted.
  */
 function hook_field_delete_field($field) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2578,7 +2578,7 @@ function hook_field_delete_field($field) {
  *   The instance as it was pre-update.
  */
 function hook_field_update_instance($instance, $prior_instance) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2591,7 +2591,7 @@ function hook_field_update_instance($instance, $prior_instance) {
  *   The instance just deleted.
  */
 function hook_field_delete_instance($instance) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2603,7 +2603,7 @@ function hook_field_delete_instance($instance) {
  *   The field record just read from the database.
  */
 function hook_field_read_field($field) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2615,7 +2615,7 @@ function hook_field_read_field($field) {
  *   The instance record just read from the database.
  */
 function hook_field_read_instance($instance) {
-    // @todo Needs function body.
+  // @todo Needs function body.
 }
 
 /**
@@ -2631,9 +2631,9 @@ function hook_field_read_instance($instance) {
  *   The field being purged.
  */
 function hook_field_purge_field($field) {
-    db_delete('my_module_field_info')
-        ->condition('id', $field['id'])
-        ->execute();
+  db_delete('my_module_field_info')
+    ->condition('id', $field['id'])
+    ->execute();
 }
 
 /**
@@ -2649,9 +2649,9 @@ function hook_field_purge_field($field) {
  *   The instance being purged.
  */
 function hook_field_purge_instance($instance) {
-    db_delete('my_module_field_instance_info')
-        ->condition('id', $instance['id'])
-        ->execute();
+  db_delete('my_module_field_instance_info')
+    ->condition('id', $instance['id'])
+    ->execute();
 }
 
 /**
@@ -2666,10 +2666,10 @@ function hook_field_purge_instance($instance) {
  * @ingroup field_storage
  */
 function hook_field_storage_purge_field($field) {
-    $table_name = _field_sql_storage_tablename($field);
-    $revision_name = _field_sql_storage_revision_tablename($field);
-    db_drop_table($table_name);
-    db_drop_table($revision_name);
+  $table_name = _field_sql_storage_tablename($field);
+  $revision_name = _field_sql_storage_revision_tablename($field);
+  db_drop_table($table_name);
+  db_drop_table($revision_name);
 }
 
 /**
@@ -2685,9 +2685,9 @@ function hook_field_storage_purge_field($field) {
  * @ingroup field_storage
  */
 function hook_field_storage_purge_field_instance($instance) {
-    db_delete('my_module_field_instance_info')
-        ->condition('id', $instance['id'])
-        ->execute();
+  db_delete('my_module_field_instance_info')
+    ->condition('id', $instance['id'])
+    ->execute();
 }
 
 /**
@@ -2708,18 +2708,18 @@ function hook_field_storage_purge_field_instance($instance) {
  * @ingroup field_storage
  */
 function hook_field_storage_purge($entity_type, $entity, $field, $instance) {
-    list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
+  list($id, $vid, $bundle) = entity_extract_ids($entity_type, $entity);
 
-    $table_name = _field_sql_storage_tablename($field);
-    $revision_name = _field_sql_storage_revision_tablename($field);
-    db_delete($table_name)
-        ->condition('entity_type', $entity_type)
-        ->condition('entity_id', $id)
-        ->execute();
-    db_delete($revision_name)
-        ->condition('entity_type', $entity_type)
-        ->condition('entity_id', $id)
-        ->execute();
+  $table_name = _field_sql_storage_tablename($field);
+  $revision_name = _field_sql_storage_revision_tablename($field);
+  db_delete($table_name)
+    ->condition('entity_type', $entity_type)
+    ->condition('entity_id', $id)
+    ->execute();
+  db_delete($revision_name)
+    ->condition('entity_type', $entity_type)
+    ->condition('entity_id', $id)
+    ->execute();
 }
 
 /**
@@ -2749,10 +2749,10 @@ function hook_field_storage_purge($entity_type, $entity, $field, $instance) {
  * @ingroup field_types
  */
 function hook_field_access($op, $field, $entity_type, $entity, $account) {
-    if ($field['field_name'] == 'field_of_interest' && $op == 'edit') {
-        return user_access('edit field of interest', $account);
-    }
-    return TRUE;
+  if ($field['field_name'] == 'field_of_interest' && $op == 'edit') {
+    return user_access('edit field of interest', $account);
+  }
+  return TRUE;
 }
 
 /**

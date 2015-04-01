@@ -111,7 +111,7 @@ function node_filters() {
     $filters['language'] = array(
       'title' => t('language'),
       'options' => array(
-        '[any]' => t('- Any -'),
+        '[any]' => t('any'),
       ) + $languages,
     );
   }
@@ -160,8 +160,6 @@ function node_filter_form() {
   $i = 0;
   $form['filters'] = array(
     '#type' => 'fieldset',
-    '#collapsible' => TRUE,
-    '#collapsed' => FALSE,
     '#title' => t('Show only items where'),
     '#theme' => 'exposed_filters__node',
   );
@@ -473,6 +471,7 @@ function node_admin_nodes() {
   $header['operations'] = array('data' => t('Operations'));
 
   $query = db_select('node', 'n')->extend('PagerDefault')->extend('TableSort');
+  $query->addTag('node_admin_filter');
   node_build_filter_query($query);
 
   if (!user_access('bypass node access')) {
