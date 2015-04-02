@@ -60,56 +60,56 @@ function drupal_theme_access($theme) {
  * @see drupal_theme_access()
  */
 function _drupal_theme_access($theme) {
-    $admin_theme = variable_get('admin_theme');
-    return !empty($theme->status) || ($admin_theme && $theme->name == $admin_theme);
+  $admin_theme = variable_get('admin_theme');
+  return !empty($theme->status) || ($admin_theme && $theme->name == $admin_theme);
 }
 
 /**
  * Initializes the theme system by loading the theme.
  */
 function drupal_theme_initialize() {
-    global $theme, $user, $theme_key;
+  global $theme, $user, $theme_key;
 
-    // If $theme is already set, assume the others are set, too, and do nothing
-    if (isset($theme)) {
-        return;
-    }
+  // If $theme is already set, assume the others are set, too, and do nothing
+  if (isset($theme)) {
+    return;
+  }
 
-    drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);
-    $themes = list_themes();
+  drupal_bootstrap(DRUPAL_BOOTSTRAP_DATABASE);
+  $themes = list_themes();
 
-    // Only select the user selected theme if it is available in the
-    // list of themes that can be accessed.
-    $theme = !empty($user->theme) && drupal_theme_access($user->theme) ? $user->theme : variable_get('theme_default', 'bartik');
+  // Only select the user selected theme if it is available in the
+  // list of themes that can be accessed.
+  $theme = !empty($user->theme) && drupal_theme_access($user->theme) ? $user->theme : variable_get('theme_default', 'bartik');
 
-    // Allow modules to override the theme. Validation has already been performed
-    // inside menu_get_custom_theme(), so we do not need to check it again here.
-    $custom_theme = menu_get_custom_theme();
-    $theme = !empty($custom_theme) ? $custom_theme : $theme;
+  // Allow modules to override the theme. Validation has already been performed
+  // inside menu_get_custom_theme(), so we do not need to check it again here.
+  $custom_theme = menu_get_custom_theme();
+  $theme = !empty($custom_theme) ? $custom_theme : $theme;
 
-    // Store the identifier for retrieving theme settings with.
-    $theme_key = $theme;
+  // Store the identifier for retrieving theme settings with.
+  $theme_key = $theme;
 
-    // Find all our ancestor themes and put them in an array.
-    $base_theme = array();
-    $ancestor = $theme;
-    while ($ancestor && isset($themes[$ancestor]->base_theme)) {
-        $ancestor = $themes[$ancestor]->base_theme;
-        $base_theme[] = $themes[$ancestor];
-    }
-    _drupal_theme_initialize($themes[$theme], array_reverse($base_theme));
+  // Find all our ancestor themes and put them in an array.
+  $base_theme = array();
+  $ancestor = $theme;
+  while ($ancestor && isset($themes[$ancestor]->base_theme)) {
+    $ancestor = $themes[$ancestor]->base_theme;
+    $base_theme[] = $themes[$ancestor];
+  }
+  _drupal_theme_initialize($themes[$theme], array_reverse($base_theme));
 
-    // Themes can have alter functions, so reset the drupal_alter() cache.
-    drupal_static_reset('drupal_alter');
+  // Themes can have alter functions, so reset the drupal_alter() cache.
+  drupal_static_reset('drupal_alter');
 
-    // Provide the page with information about the theme that's used, so that a
-    // later Ajax request can be rendered using the same theme.
-    // @see ajax_base_page_theme()
-    $setting['ajaxPageState'] = array(
-        'theme' => $theme_key,
-        'theme_token' => drupal_get_token($theme_key),
-    );
-    drupal_add_js($setting, 'setting');
+  // Provide the page with information about the theme that's used, so that a
+  // later Ajax request can be rendered using the same theme.
+  // @see ajax_base_page_theme()
+  $setting['ajaxPageState'] = array(
+    'theme' => $theme_key,
+    'theme_token' => drupal_get_token($theme_key),
+  );
+  drupal_add_js($setting, 'setting');
 }
 
 /**
@@ -139,46 +139,46 @@ function drupal_theme_initialize() {
  *   The callback to invoke to set the theme registry.
  */
 function _drupal_theme_initialize($theme, $base_theme = array(), $registry_callback = '_theme_load_registry') {
-    global $theme_info, $base_theme_info, $theme_engine, $theme_path;
-    $theme_info = $theme;
-    $base_theme_info = $base_theme;
+  global $theme_info, $base_theme_info, $theme_engine, $theme_path;
+  $theme_info = $theme;
+  $base_theme_info = $base_theme;
 
-    $theme_path = dirname($theme->filename);
+  $theme_path = dirname($theme->filename);
 
-    // Prepare stylesheets from this theme as well as all ancestor themes.
-    // We work it this way so that we can have child themes override parent
-    // theme stylesheets easily.
-    $final_stylesheets = array();
+  // Prepare stylesheets from this theme as well as all ancestor themes.
+  // We work it this way so that we can have child themes override parent
+  // theme stylesheets easily.
+  $final_stylesheets = array();
 
-    // Grab stylesheets from base theme
-    foreach ($base_theme as $base) {
-        if (!empty($base->stylesheets)) {
-            foreach ($base->stylesheets as $media => $stylesheets) {
-                foreach ($stylesheets as $name => $stylesheet) {
-                    $final_stylesheets[$media][$name] = $stylesheet;
-                }
-            }
+  // Grab stylesheets from base theme
+  foreach ($base_theme as $base) {
+    if (!empty($base->stylesheets)) {
+      foreach ($base->stylesheets as $media => $stylesheets) {
+        foreach ($stylesheets as $name => $stylesheet) {
+          $final_stylesheets[$media][$name] = $stylesheet;
         }
+      }
     }
+  }
 
-    // Add stylesheets used by this theme.
-    if (!empty($theme->stylesheets)) {
-        foreach ($theme->stylesheets as $media => $stylesheets) {
-            foreach ($stylesheets as $name => $stylesheet) {
-                $final_stylesheets[$media][$name] = $stylesheet;
-            }
-        }
+  // Add stylesheets used by this theme.
+  if (!empty($theme->stylesheets)) {
+    foreach ($theme->stylesheets as $media => $stylesheets) {
+      foreach ($stylesheets as $name => $stylesheet) {
+        $final_stylesheets[$media][$name] = $stylesheet;
+      }
     }
+  }
 
-    // And now add the stylesheets properly
-    foreach ($final_stylesheets as $media => $stylesheets) {
-        foreach ($stylesheets as $stylesheet) {
-            drupal_add_css($stylesheet, array('group' => CSS_THEME, 'every_page' => TRUE, 'media' => $media));
-        }
+  // And now add the stylesheets properly
+  foreach ($final_stylesheets as $media => $stylesheets) {
+    foreach ($stylesheets as $stylesheet) {
+      drupal_add_css($stylesheet, array('group' => CSS_THEME, 'every_page' => TRUE, 'media' => $media));
     }
+  }
 
-    // Do basically the same as the above for scripts
-    $final_scripts = array();
+  // Do basically the same as the above for scripts
+  $final_scripts = array();
 
     // Grab scripts from base theme
     foreach ($base_theme as $base) {
@@ -288,11 +288,11 @@ function theme_get_registry($complete = TRUE) {
  *   The arguments to pass to the function.
  */
 function _theme_registry_callback($callback = NULL, array $arguments = array()) {
-    static $stored;
-    if (isset($callback)) {
-        $stored = array($callback, $arguments);
-    }
-    return $stored;
+  static $stored;
+  if (isset($callback)) {
+    $stored = array($callback, $arguments);
+  }
+  return $stored;
 }
 
 /**
@@ -347,10 +347,9 @@ function _theme_save_registry($theme, $registry)
  * This function should be called when modules are added to the system, or when
  * a dynamic system needs to add more theme hooks.
  */
-function drupal_theme_rebuild()
-{
-    drupal_static_reset('theme_get_registry');
-    cache_clear_all('theme_registry', 'cache', TRUE);
+function drupal_theme_rebuild() {
+  drupal_static_reset('theme_get_registry');
+  cache_clear_all('theme_registry', 'cache', TRUE);
 }
 
 /**
@@ -635,7 +634,8 @@ function _theme_process_registry(&$cache, $name, $type, $theme, $path)
         $cache = $result + $cache;
     }
 
-    // Let themes have variable processors even if they didn't register a template.
+  // Let themes have variable processors even if they didn't register a
+  // template.
     if ($type == 'theme' || $type == 'base_theme') {
         foreach ($cache as $hook => $info) {
             // Check only if not registered by the theme or engine.
@@ -1512,8 +1512,7 @@ function theme_get_setting($setting_name, $theme = NULL)
  * @return
  *   The output generated by the template.
  */
-function theme_render_template($template_file, $variables)
-{
+function theme_render_template($template_file, $variables) {
     extract($variables, EXTR_SKIP);               // Extract the variables to a local namespace
     ob_start();                                   // Start output buffering
     include DRUPAL_ROOT . '/' . $template_file;   // Include the template file
@@ -1722,8 +1721,7 @@ function theme_status_messages($variables) {
  *
  * @see l()
  */
-function theme_link($variables)
-{
+function theme_link($variables) {
     return '<a href="' . check_plain(url($variables['path'], $variables['options'])) . '"' . drupal_attributes($variables['options']['attributes']) . '>' . ($variables['options']['html'] ? $variables['text'] : check_plain($variables['text'])) . '</a>';
 }
 
