@@ -14,7 +14,7 @@ function develop_form_install_configure_form_alter(&$form, $form_state) {
   $form['site_information']['site_name']['#default_value'] = $_SERVER['SERVER_NAME'];
   $form['server_settings']['site_default_country']['#default_value'] = 'RU';
   // Use "Happensit" as the default username.
-  $form['admin_account']['account']['name']['#default_value'] = 'Happensit';
+  $form['admin_account']['account']['name']['#default_value'] = 'root';
   // Define a default email address if we can guess a valid one
   if (valid_email_address('mail@' . $_SERVER['HTTP_HOST'])) {
     $form['site_information']['site_mail']['#default_value'] = 'mail@' . $_SERVER['HTTP_HOST'];
