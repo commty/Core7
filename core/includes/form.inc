@@ -932,7 +932,7 @@ function drupal_process_form($form_id, &$form, &$form_state) {
         // after the batch is processed.
       }
 
-      // Set a flag to indicate the the form has been processed and executed.
+      // Set a flag to indicate that the form has been processed and executed.
       $form_state['executed'] = TRUE;
 
       // Redirect the form based on values in $form_state.
@@ -2445,6 +2445,17 @@ function form_type_password_confirm_value($element, $input = FALSE) {
     $element += array('#default_value' => array());
     return $element['#default_value'] + array('pass1' => '', 'pass2' => '');
   }
+  $value = array('pass1' => '', 'pass2' => '');
+  // Throw out all invalid array keys; we only allow pass1 and pass2.
+  foreach ($value as $allowed_key => $default) {
+    // These should be strings, but allow other scalars since they might be
+    // valid input in programmatic form submissions. Any nested array values
+    // are ignored.
+    if (isset($input[$allowed_key]) && is_scalar($input[$allowed_key])) {
+      $value[$allowed_key] = (string) $input[$allowed_key];
+    }
+  }
+  return $value;
 }
 
 /**
@@ -2489,6 +2500,27 @@ function form_type_select_value($element, $input = FALSE) {
 }
 
 /**
+ * Determines the value for a textarea form element.
+ *
+ * @param array $element
+ *   The form element whose value is being populated.
+ * @param mixed $input
+ *   The incoming input to populate the form element. If this is FALSE,
+ *   the element's default value should be returned.
+ *
+ * @return string
+ *   The data that will appear in the $element_state['values'] collection
+ *   for this element. Return nothing to use the default.
+ */
+function form_type_textarea_value($element, $input = FALSE) {
+  if ($input !== FALSE) {
+    // This should be a string, but allow other scalars since they might be
+    // valid input in programmatic form submissions.
+    return is_scalar($input) ? (string) $input : '';
+  }
+}
+
+/**
  * Determines the value for a textfield form element.
  *
  * @param $element
@@ -2503,10 +2535,13 @@ function form_type_select_value($element, $input = FALSE) {
  */
 function form_type_textfield_value($element, $input = FALSE) {
   if ($input !== FALSE && $input !== NULL) {
-    // Equate $input to the form value to ensure it's marked for
-    // validation.
-    return str_replace(array("\r", "\n"), '', $input);
+    // This should be a string, but allow other scalars since they might be
+    // valid input in programmatic form submissions.
+    if (!is_scalar($input)) {
+      $input = '';
   }
+    return str_replace(array("\r", "\n"), '', (string) $input);
+}
 }
 
 /**
@@ -2716,7 +2751,7 @@ function form_select_options($element, $choices = NULL) {
   $options = '';
   foreach ($choices as $key => $choice) {
     if (is_array($choice)) {
-      $options .= '<optgroup label="' . $key . '">';
+      $options .= '<optgroup label="' . check_plain($key) . '">';
       $options .= form_select_options($element, $choice);
       $options .= '</optgroup>';
     }
@@ -2911,11 +2946,11 @@ function password_confirm_validate($element, &$element_state) {
   $pass2 = trim($element['pass2']['#value']);
   if (!empty($pass1) || !empty($pass2)) {
     if (strcmp($pass1, $pass2)) {
-      form_error($element, 'Введённые пароли не совпадают.');
+      form_error($element, t('The specified passwords do not match.'));
     }
   }
   elseif ($element['#required'] && !empty($element_state['input'])) {
-    form_error($element, 'Поле пароля обязательно к заполнению.');
+    form_error($element, t('Password field is required.'));
   }
 
   // Password field must be converted from a two-element array into a single
@@ -3144,12 +3179,13 @@ function theme_checkboxes($variables) {
  * This is used as a pre render function for checkboxes and radios.
  */
 function form_pre_render_conditional_form_element($element) {
+  $t = get_t();
   // Set the element's title attribute to show #title as a tooltip, if needed.
   if (isset($element['#title']) && $element['#title_display'] == 'attribute') {
     $element['#attributes']['title'] = $element['#title'];
     if (!empty($element['#required'])) {
       // Append an indication that this field is required.
-      $element['#attributes']['title'] .= 'Обязательное поле';
+      $element['#attributes']['title'] .= ' (' . $t('Required') . ')';
     }
   }
 

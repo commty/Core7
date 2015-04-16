@@ -1086,6 +1086,7 @@ function theme($hook, $variables = array())
     } elseif (!empty($info['render element'])) {
         $variables += array($info['render element'] => array());
     }
+
     $variables['theme_hook_original'] = $theme_hook_original;
 
     // Invoke the variable processors, if any. The processors may specify
@@ -1696,7 +1697,7 @@ function theme_status_messages($variables) {
       $output .= " </ul>\n";
     }
     else {
-      $output .= $messages[0];
+      $output .= reset($messages);
     }
     $output .= "</div>\n";
   }
@@ -2634,7 +2635,10 @@ function template_preprocess_page(&$variables)
         if (!isset($variables['page'][$region_key])) {
             $variables['page'][$region_key] = array();
         }
+    if ($region_content = drupal_get_region_content($region_key)) {
+      $variables['page'][$region_key][]['#markup'] = $region_content;
     }
+  }
 
     // Set up layout variable.
     $variables['layout'] = 'none';

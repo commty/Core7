@@ -325,7 +325,7 @@ function theme_pager($variables) {
   if ($quantity > 5) :
     $quantity = 5;
   endif;
-  global $pager_page_array, $pager_total, $pager_total_items;
+  global $pager_page_array, $pager_total;
 
   // Calculate various markers within this pager piece:
   // Middle is used to "center" pages around the current page.
@@ -420,17 +420,14 @@ function theme_pager($variables) {
       $items[] = array(
         'class' => array('pager-next'),
         'data' => $li_next,
-          'data' => $li_next,
       );
+    }
     if ($li_last) {
       $items[] = array(
         'class' => array('pager-last'),
         'data' => $li_last,
       );
     }
-
-    }
-
     return '<h2 class="element-invisible">' . t('Pages') . '</h2>' . theme('item_list', array(
       'items' => $items,
       'attributes' => array('class' => array('pager', 'clearfix')),
@@ -639,7 +636,7 @@ function theme_pager_link($variables) {
       $attributes['title'] = $titles[$text];
     }
     elseif (is_numeric($text)) {
-      $attributes['title'] = t('На @number страницу', array('@number' => $text));
+      $attributes['title'] = t('Go to page @number', array('@number' => $text));
     }
   }
 

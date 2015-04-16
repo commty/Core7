@@ -229,7 +229,7 @@ function drupal_detect_baseurl($file = 'core/install.php') {
 }
 
 /**
- * Detect all supported databases that are compiled into PHP.
+ * Detects all supported databases that are compiled into PHP.
  *
  * @return
  *  An array of database types compiled into PHP.
@@ -245,7 +245,7 @@ function drupal_detect_database_types() {
 }
 
 /**
- * Return all supported database installer objects that are compiled into PHP.
+ * Returns all supported database installer objects that are compiled into PHP.
  *
  * @return
  *  An array of database installer objects compiled into PHP.
@@ -253,7 +253,7 @@ function drupal_detect_database_types() {
 function drupal_get_database_types() {
   $databases = array();
 
-  // We define a driver as a directory in /core/includes/database that in turn
+  // We define a driver as a directory in /includes/database that in turn
   // contains a database.inc file. That allows us to drop in additional drivers
   // without modifying the installer.
   // Because we have no registry yet, we need to also include the install.inc
@@ -478,16 +478,16 @@ abstract class DatabaseTasks {
   public function getFormOptions($database) {
     $form['database'] = array(
       '#type' => 'textfield',
-      '#title' => 'Имя базы данных',
+      '#title' => st('Database name'),
       '#default_value' => empty($database['database']) ? '' : $database['database'],
       '#size' => 45,
       '#required' => TRUE,
-      //'#description' => st('The name of the database your @drupal data will be stored in. It must exist on your server before @drupal can be installed.', array('@drupal' => drupal_install_profile_distribution_name())),
+      '#description' => st('The name of the database your @drupal data will be stored in. It must exist on your server before @drupal can be installed.', array('@drupal' => drupal_install_profile_distribution_name())),
     );
 
     $form['username'] = array(
       '#type' => 'textfield',
-      '#title' => 'Пользователь базы данных',
+      '#title' => st('Database username'),
       '#default_value' => empty($database['username']) ? '' : $database['username'],
       '#required' => TRUE,
       '#size' => 45,
@@ -495,7 +495,7 @@ abstract class DatabaseTasks {
 
     $form['password'] = array(
       '#type' => 'password',
-      '#title' => 'Пароль',
+      '#title' => st('Database password'),
       '#default_value' => empty($database['password']) ? '' : $database['password'],
       '#required' => FALSE,
       '#size' => 45,
@@ -503,15 +503,15 @@ abstract class DatabaseTasks {
 
     $form['advanced_options']['db_prefix'] = array(
       '#type' => 'textfield',
-      '#title' => 'Префикс таблиц',
-      '#default_value' => 'core_',
+      '#title' => st('Table prefix'),
+      '#default_value' => '',
       '#size' => 45,
       '#weight' => 10,
     );
 
     $form['advanced_options']['host'] = array(
       '#type' => 'textfield',
-      '#title' => 'Сервер',
+      '#title' => st('Database host'),
       '#default_value' => empty($database['host']) ? 'localhost' : $database['host'],
       '#size' => 45,
       // Hostnames can be 255 characters long.
@@ -521,7 +521,7 @@ abstract class DatabaseTasks {
 
     $form['advanced_options']['port'] = array(
       '#type' => 'textfield',
-      '#title' => 'Порт SQL сервера',
+      '#title' => st('Database port'),
       '#default_value' => empty($database['port']) ? '3306' : $database['port'],
       '#size' => 45,
       // The maximum port number is 65536, 5 digits.
@@ -639,6 +639,13 @@ function drupal_rewrite_settings($settings = array(), $prefix = '') {
     if ($fp && fwrite($fp, $buffer) === FALSE) {
       throw new Exception(st('Failed to modify %settings. Verify the file permissions.', array('%settings' => $settings_file)));
     }
+    else {
+      // The existing settings.php file might have been included already. In
+      // case an opcode cache is enabled, the rewritten contents of the file
+      // will not be reflected in this process. Ensure to invalidate the file
+      // in case an opcode cache is enabled.
+      drupal_clear_opcode_cache(DRUPAL_ROOT . '/' . $settings_file);
+  }
   }
   else {
     throw new Exception(st('Failed to open %settings. Verify the file permissions.', array('%settings' => $default_settings)));

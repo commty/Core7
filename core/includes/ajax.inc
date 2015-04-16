@@ -168,7 +168,7 @@
  *   displayed while awaiting a response from the callback, and add an optional
  *   message. Possible keys: 'type', 'message', 'url', 'interval'.
  *   More information is available in the
- *   @link http://api.drupal.org/api/drupal/developer--topics--forms_api_reference.html/7 Form API Reference @endlink
+ *   @link forms_api_reference.html Form API Reference @endlink
  *
  * In addition to using Form API for doing in-form modification, Ajax may be
  * enabled by adding classes to buttons and links. By adding the 'use-ajax'
@@ -211,7 +211,7 @@
  *
  * When returning an Ajax command array, it is often useful to have
  * status messages rendered along with other tasks in the command array.
- * In that case the the Ajax commands array may be constructed like this:
+ * In that case the Ajax commands array may be constructed like this:
  * @code
  *   $commands = array();
  *   $commands[] = ajax_command_replace(NULL, $output);
@@ -292,7 +292,7 @@ function ajax_render($commands = array()) {
   $scripts = drupal_add_js();
   if (!empty($scripts['settings'])) {
     $settings = $scripts['settings'];
-     array_unshift($commands, ajax_command_settings(drupal_array_merge_deep_array($settings['data']), TRUE));
+    array_unshift($commands, ajax_command_settings(drupal_array_merge_deep_array($settings['data']), TRUE));
   }
 
   // Allow modules to alter any Ajax response.
@@ -860,7 +860,8 @@ function ajax_command_insert($selector, $html, $settings = NULL) {
  * @return
  *   An array suitable for use with the ajax_render() function.
  *
- * See @link http://docs.jquery.com/Manipulation/replaceWith#content jQuery replaceWith command @endlink
+ * See
+ * @link http://docs.jquery.com/Manipulation/replaceWith#content jQuery replaceWith command @endlink
  */
 function ajax_command_replace($selector, $html, $settings = NULL) {
   return array(
@@ -1274,8 +1275,8 @@ function ajax_command_update_build_id($form) {
  * @see misc/ajax.js
  */
 function ajax_command_add_css($styles) {
-      return array(
-            'command' => 'add_css',
-            'data' => $styles,
-          );
+  return array(
+    'command' => 'add_css',
+    'data' => $styles,
+  );
 }

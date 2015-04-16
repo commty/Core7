@@ -98,9 +98,11 @@ function cache_get_multiple(array &$cids, $bin = 'cache') {
  * @param $data
  *   The data to store in the cache. Complex data types will be automatically
  *   serialized before insertion. Strings will be stored as plain text and are
- *   not serialized.
+ *   not serialized. Some storage engines only allow objects up to a maximum of
+ *   1MB in size to be stored by default. When caching large arrays or similar,
+ *   take care to ensure $data does not exceed this size.
  * @param $bin
- *   The cache bin to store the data in. Valid core values are:
+ *   (optional) The cache bin to store the data in. Valid core values are:
  *   - cache: (default) Generic cache storage bin (used for theme registry,
  *     locale date, list of simpletest tests, etc.).
  *   - cache_block: Stores the content of various blocks.
@@ -119,7 +121,7 @@ function cache_get_multiple(array &$cids, $bin = 'cache') {
  *     the administrator panel.
  *   - cache_path: Stores the system paths that have an alias.
  * @param $expire
- *   One of the following values:
+ *   (optional) One of the following values:
  *   - CACHE_PERMANENT: Indicates that the item should never be removed unless
  *     explicitly told to using cache_clear_all() with a cache ID.
  *   - CACHE_TEMPORARY: Indicates that the item should be removed at the next
@@ -254,10 +256,12 @@ interface DrupalCacheInterface {
    *   The cache ID of the data to store.
    * @param $data
    *   The data to store in the cache. Complex data types will be automatically
-   *   serialized before insertion.
-   *   Strings will be stored as plain text and not serialized.
+   *   serialized before insertion. Strings will be stored as plain text and not
+   *   serialized. Some storage engines only allow objects up to a maximum of
+   *   1MB in size to be stored by default. When caching large arrays or
+   *   similar, take care to ensure $data does not exceed this size.
    * @param $expire
-   *   One of the following values:
+   *   (optional) One of the following values:
    *   - CACHE_PERMANENT: Indicates that the item should never be removed unless
    *     explicitly told to using cache_clear_all() with a cache ID.
    *   - CACHE_TEMPORARY: Indicates that the item should be removed at the next
@@ -462,7 +466,7 @@ class DrupalDatabaseCache implements DrupalCacheInterface {
         ->execute();
     }
     catch (Exception $e) {
-      // The database may not be available, so we'll ignore these calls.
+      // The database may not be available, so we'll ignore cache_set requests.
     }
   }
 
@@ -481,12 +485,12 @@ class DrupalDatabaseCache implements DrupalCacheInterface {
 
       $cache_flush = variable_get('cache_flush_' . $this->bin, 0);
       if ($cache_flush == 0) {
-        // This is the first request to clear the cache; start a timer.
+          // This is the first request to clear the cache, start a timer.
         variable_set('cache_flush_' . $this->bin, REQUEST_TIME);
       }
         elseif (REQUEST_TIME > ($cache_flush + variable_get('cache_lifetime', 0))) {
-        // Clear the cache for everyone; cache_lifetime seconds have passed
-        // since the first request to clear the cache.
+          // Clear the cache for everyone, cache_lifetime seconds have
+          // passed since the first request to clear the cache.
         db_delete($this->bin)
           ->condition('expire', CACHE_PERMANENT, '<>')
           ->condition('expire', REQUEST_TIME, '<')
@@ -495,7 +499,7 @@ class DrupalDatabaseCache implements DrupalCacheInterface {
       }
     }
     else {
-      // No minimum cache lifetime; flush all temporary cache entries now.
+        // No minimum cache lifetime, flush all temporary cache entries now.
       db_delete($this->bin)
         ->condition('expire', CACHE_PERMANENT, '<>')
         ->condition('expire', REQUEST_TIME, '<')

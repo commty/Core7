@@ -8,7 +8,7 @@
 /**
  * The current system version.
  */
-define('VERSION', '7.35');
+define('VERSION', '7.36');
 
 /**
  * Core API compatibility.
@@ -893,9 +893,9 @@ function drupal_get_filename($type, $name, $filename = NULL) {
     try {
       if (function_exists('db_query')) {
         $file = db_query("SELECT filename FROM {system} WHERE name = :name AND type = :type", array(':name' => $name, ':type' => $type))->fetchField();
-          if ($file !== FALSE && file_exists(DRUPAL_ROOT . '/' . $file)) {
-              $files[$type][$name] = $file;
-          }
+        if ($file !== FALSE && file_exists(DRUPAL_ROOT . '/' . $file)) {
+          $files[$type][$name] = $file;
+        }
       }
     }
     catch (Exception $e) {
@@ -1278,23 +1278,10 @@ function drupal_send_headers($default_headers = array(), $only_default = FALSE) 
  * fresh page on every request. This prevents authenticated users from seeing
  * locally cached pages.
  *
- * Also give each page a unique ETag. This will force clients to include both
- * an If-Modified-Since header and an If-None-Match header when doing
- * conditional requests for the page (required by RFC 2616, section 13.3.4),
- * making the validation more robust. This is a workaround for a bug in Mozilla
- * Firefox that is triggered when Drupal's caching is enabled and the user
- * accesses Drupal via an HTTP proxy (see
- * https://bugzilla.mozilla.org/show_bug.cgi?id=269303): When an authenticated
- * user requests a page, and then logs out and requests the same page again,
- * Firefox may send a conditional request based on the page that was cached
- * locally when the user was logged in. If this page did not have an ETag
- * header, the request only contains an If-Modified-Since header. The date will
- * be recent, because with authenticated users the Last-Modified header always
- * refers to the time of the request. If the user accesses Drupal via a proxy
- * server, and the proxy already has a cached copy of the anonymous page with an
- * older Last-Modified date, the proxy may respond with 304 Not Modified, making
- * the client think that the anonymous and authenticated pageviews are
- * identical.
+ * ETag and Last-Modified headers are not set per default for authenticated
+ * users so that browsers do not send If-Modified-Since headers from
+ * authenticated user pages. drupal_serve_page_from_cache() will set appropriate
+ * ETag and Last-Modified headers for cached pages.
  *
  * @see drupal_page_set_cache()
  */
@@ -2238,35 +2225,35 @@ function drupal_anonymous_user() {
  *   The most recently completed phase.
  */
 function drupal_bootstrap($phase = NULL, $new_phase = TRUE) {
-    // Not drupal_static(), because does not depend on any run-time information.
-    static $phases = array(
-        DRUPAL_BOOTSTRAP_CONFIGURATION,
-        DRUPAL_BOOTSTRAP_PAGE_CACHE,
-        DRUPAL_BOOTSTRAP_DATABASE,
-        DRUPAL_BOOTSTRAP_VARIABLES,
-        DRUPAL_BOOTSTRAP_SESSION,
-        DRUPAL_BOOTSTRAP_PAGE_HEADER,
-        DRUPAL_BOOTSTRAP_LANGUAGE,
-        DRUPAL_BOOTSTRAP_FULL,
-    );
-    // Not drupal_static(), because the only legitimate API to control this is to
-    // call drupal_bootstrap() with a new phase parameter.
-    static $final_phase;
-    // Not drupal_static(), because it's impossible to roll back to an earlier
-    // bootstrap state.
-    static $stored_phase = -1;
+  // Not drupal_static(), because does not depend on any run-time information.
+  static $phases = array(
+    DRUPAL_BOOTSTRAP_CONFIGURATION,
+    DRUPAL_BOOTSTRAP_PAGE_CACHE,
+    DRUPAL_BOOTSTRAP_DATABASE,
+    DRUPAL_BOOTSTRAP_VARIABLES,
+    DRUPAL_BOOTSTRAP_SESSION,
+    DRUPAL_BOOTSTRAP_PAGE_HEADER,
+    DRUPAL_BOOTSTRAP_LANGUAGE,
+    DRUPAL_BOOTSTRAP_FULL,
+  );
+  // Not drupal_static(), because the only legitimate API to control this is to
+  // call drupal_bootstrap() with a new phase parameter.
+  static $final_phase;
+  // Not drupal_static(), because it's impossible to roll back to an earlier
+  // bootstrap state.
+  static $stored_phase = -1;
 
-    if (isset($phase)) {
-        // When not recursing, store the phase name so it's not forgotten while
-        // recursing but take care of not going backwards.
-        if ($new_phase && $phase >= $stored_phase) {
-            $final_phase = $phase;
-        }
+  if (isset($phase)) {
+    // When not recursing, store the phase name so it's not forgotten while
+    // recursing but take care of not going backwards.
+    if ($new_phase && $phase >= $stored_phase) {
+      $final_phase = $phase;
+    }
 
-        // Call a phase if it has not been called before and is below the requested
-        // phase.
-        while ($phases && $phase > $stored_phase && $final_phase > $stored_phase) {
-            $current_phase = array_shift($phases);
+    // Call a phase if it has not been called before and is below the requested
+    // phase.
+    while ($phases && $phase > $stored_phase && $final_phase > $stored_phase) {
+      $current_phase = array_shift($phases);
 
             // This function is re-entrant. Only update the completed phase when the
             // current call actually resulted in a progress in the bootstrap process.
@@ -2529,25 +2516,26 @@ function _drupal_bootstrap_variables() {
   // Load bootstrap modules.
   require_once DRUPAL_ROOT . '/core/includes/module.inc';
   module_load_all(TRUE);
-    // Sanitize the destination parameter (which is often used for redirects) to
-     // prevent open redirect attacks leading to other domains. Sanitize both
-     // $_GET['destination'] and $_REQUEST['destination'] to protect code that
-     // relies on either, but do not sanitize $_POST to avoid interfering with
-     // unrelated form submissions. The sanitization happens here because
-     // url_is_external() requires the variable system to be available.
-     if (isset($_GET['destination']) || isset($_REQUEST['destination'])) {
+
+  // Sanitize the destination parameter (which is often used for redirects) to
+  // prevent open redirect attacks leading to other domains. Sanitize both
+  // $_GET['destination'] and $_REQUEST['destination'] to protect code that
+  // relies on either, but do not sanitize $_POST to avoid interfering with
+  // unrelated form submissions. The sanitization happens here because
+  // url_is_external() requires the variable system to be available.
+  if (isset($_GET['destination']) || isset($_REQUEST['destination'])) {
          require_once DRUPAL_ROOT . '/core/includes/common.inc';
-         // If the destination is an external URL, remove it.
-         if (isset($_GET['destination']) && url_is_external($_GET['destination'])) {
-             unset($_GET['destination']);
-            unset($_REQUEST['destination']);
-         }
-        // If there's still something in $_REQUEST['destination'] that didn't come
-        // from $_GET, check it too.
-         if (isset($_REQUEST['destination']) && (!isset($_GET['destination']) || $_REQUEST['destination'] != $_GET['destination']) && url_is_external($_REQUEST['destination'])) {
-                    unset($_REQUEST['destination']);
-         }
-     }
+    // If the destination is an external URL, remove it.
+    if (isset($_GET['destination']) && url_is_external($_GET['destination'])) {
+      unset($_GET['destination']);
+      unset($_REQUEST['destination']);
+    }
+    // If there's still something in $_REQUEST['destination'] that didn't come
+    // from $_GET, check it too.
+    if (isset($_REQUEST['destination']) && (!isset($_GET['destination']) || $_REQUEST['destination'] != $_GET['destination']) && url_is_external($_REQUEST['destination'])) {
+      unset($_REQUEST['destination']);
+    }
+  }
 }
 
 /**
@@ -2570,7 +2558,7 @@ function _drupal_bootstrap_page_header() {
  * @see drupal_bootstrap()
  */
 function drupal_get_bootstrap_phase() {
-    return drupal_bootstrap(NULL, FALSE);
+  return drupal_bootstrap(NULL, FALSE);
 }
 
 /**
@@ -2871,7 +2859,7 @@ function request_path() {
     // This request is either a clean URL, or 'index.php', or nonsense.
     // Extract the path from REQUEST_URI.
     $request_path = strtok($_SERVER['REQUEST_URI'], '?');
-    $base_path_len = strlen($GLOBALS['base_path']);
+    $base_path_len = strlen(rtrim(dirname($_SERVER['SCRIPT_NAME']), '\/'));
     // Unescape and strip $base_path prefix, leaving q without a leading slash.
     $path = substr(urldecode($request_path), $base_path_len + 1);
     // If the path equals the script filename, either because 'index.php' was
@@ -2991,7 +2979,7 @@ function ip_address() {
 }
 
 /**
- * @ingroup schemaapi
+ * @addtogroup schemaapi
  * @{
  */
 
@@ -3113,12 +3101,12 @@ function drupal_get_complete_schema($rebuild = FALSE) {
 }
 
 /**
- * @} End of "ingroup schemaapi".
+ * @} End of "addtogroup schemaapi".
  */
 
 
 /**
- * @ingroup registry
+ * @addtogroup registry
  * @{
  */
 
@@ -3213,10 +3201,13 @@ function _registry_check_code($type, $name = NULL) {
   // This function may get called when the default database is not active, but
   // there is no reason we'd ever want to not use the default database for
   // this query.
-  $file = Database::getConnection('default', 'default')->query("SELECT filename FROM {registry} WHERE name = :name AND type = :type", array(
-      ':name' => $name,
-      ':type' => $type,
-    ))
+  $file = Database::getConnection('default', 'default')
+    ->select('registry', 'r', array('target' => 'default'))
+    ->fields('r', array('filename'))
+    // Use LIKE here to make the query case-insensitive.
+    ->condition('r.name', db_like($name), 'LIKE')
+    ->condition('r.type', $type)
+    ->execute()
     ->fetchField();
 
   // Flag that we've run a lookup query and need to update the cache.
@@ -3280,7 +3271,7 @@ function registry_update() {
 }
 
 /**
- * @} End of "ingroup registry".
+ * @} End of "addtogroup registry".
  */
 
 /**
@@ -3390,11 +3381,9 @@ function registry_update() {
  * @param $default_value
  *   Optional default value.
  * @param $reset
- *   TRUE to reset a specific named variable, or all variables if $name is NULL.
- *   Resetting every variable should only be used, for example, for running
- *   unit tests with a clean environment. Should be used only though via
- *   function drupal_static_reset() and the return value should not be used in
- *   this case.
+ *   TRUE to reset one or all variables(s). This parameter is only used
+ *   internally and should not be passed in; use drupal_static_reset() instead.
+ *   (This function's return value should not be used when TRUE is passed in.)
  *
  * @return
  *   Returns a variable by reference.
@@ -3553,4 +3542,35 @@ function drupal_check_memory_limit($required, $memory_limit = NULL) {
   // - The memory limit is set to unlimited (-1).
   // - The memory limit is greater than the memory required for the operation.
   return ((!$memory_limit) || ($memory_limit == -1) || (parse_size($memory_limit) >= parse_size($required)));
+}
+
+/**
+ * Invalidates a PHP file from any active opcode caches.
+ *
+ * If the opcode cache does not support the invalidation of individual files,
+ * the entire cache will be flushed.
+ *
+ * @param string $filepath
+ *   The absolute path of the PHP file to invalidate.
+ */
+function drupal_clear_opcode_cache($filepath) {
+  if (!defined('PHP_VERSION_ID') || PHP_VERSION_ID < 50300) {
+    // Below PHP 5.3, clearstatcache does not accept any function parameters.
+    clearstatcache();
+  }
+  else {
+    clearstatcache(TRUE, $filepath);
+  }
+
+  // Zend OPcache.
+  if (function_exists('opcache_invalidate')) {
+    opcache_invalidate($filepath, TRUE);
+  }
+  // APC.
+  if (function_exists('apc_delete_file')) {
+    // apc_delete_file() throws a PHP warning in case the specified file was
+    // not compiled yet.
+    // @see http://php.net/apc-delete-file
+    @apc_delete_file($filepath);
+  }
 }

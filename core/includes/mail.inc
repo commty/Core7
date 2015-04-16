@@ -193,7 +193,7 @@ function drupal_mail($module, $key, $to, $language, $params = array(), $from = N
 }
 
 /**
- * Returns an object that implements the MailSystemInterface.
+ * Returns an object that implements the MailSystemInterface interface.
  *
  * Allows for one or more custom mail backends to format and send mail messages
  * composed using drupal_mail().

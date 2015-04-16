@@ -11,7 +11,9 @@
  * Functions that perform an action on a certain system object.
  *
  * Action functions are declared by modules by implementing hook_action_info().
- * Modules can cause action functions to run by calling actions_do().
+ * Modules can cause action functions to run by calling actions_do(), and
+ * trigger.module provides a user interface that lets administrators define
+ * events that cause action functions to run.
  *
  * Each action function takes two to four arguments:
  * - $entity: The object that the action acts on, such as a node, comment, or
@@ -20,7 +22,7 @@
  * - $a1, $a2: Optional additional information, which can be passed into
  *   actions_do() and will be passed along to the action function.
  *
- * @} End of "defgroup actions".
+ * @}
  */
 
 /**

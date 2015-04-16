@@ -12,8 +12,8 @@ files[] = system.test
 required = TRUE
 configure = admin/config/system
 
-; Information added by Drupal.org packaging script on 2014-01-31
-version = "7.32"
+; Information added by Drupal.org packaging script on 2015-04-02
+version = "7.36"
 project = "drupal"
-datestamp = "1391200708"
+datestamp = "1427943826"
 
