@@ -2304,10 +2304,12 @@ function user_login_finalize(&$edit = array()) {
  */
 function user_login_submit($form, &$form_state) {
   global $user;
-  $user = user_load($form_state['uid']);
-  //  $form_state['redirect'] = 'user/' . $user->uid;
-    //@todo Убрать если на сайте планируются пользователи
-  $form_state['redirect'] = 'admin/content';
+    $user = user_load($form_state['uid']);
+    if ($user->uid == 1) {
+        $form_state['redirect'] = 'admin/content';
+    } else {
+        $form_state['redirect'] = 'user/' . $user->uid;
+    }
 
   user_login_finalize($form_state);
 }
