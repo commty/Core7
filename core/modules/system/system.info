@@ -13,7 +13,7 @@ required = TRUE
 configure = admin/config/system
 
 ; Information added by Drupal.org packaging script on 2015-04-02
-version = "7.36"
+version = "7.37"
 project = "drupal"
 datestamp = "1427943826"
 
