@@ -1,0 +1,19 @@
+core = 7.x
+api = 2
+
+projects[] = admin_menu
+projects[] = adminimal_admin_menu
+projects[] = ctools
+projects[] = ckeditor
+projects[] = entity
+projects[] = field_formatter_settings
+projects[] = l10n_update
+projects[] = module_filter
+projects[] = libraries
+projects[] = path_breadcrumbs
+projects[] = taxonomy_display
+projects[] = token
+projects[] = transliteration
+projects[] = views
+projects[] = webform
+projects[ocupload] = 2.x-dev

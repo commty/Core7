@@ -362,7 +362,8 @@ function install_run_tasks(&$install_state) {
  * Runs an individual installation task.
  *
  * @param $task
- *   An array of information about the task to be run.
+ *   An array of information about the task to be run as returned by
+ *   hook_install_tasks().
  * @param $install_state
  *   An array of information about the current installation state. This is
  *   passed in by reference so that it can be modified by the task.
@@ -478,11 +479,15 @@ function install_run_task($task, &$install_state) {
  * the page request evolves (for example, if an installation profile hasn't
  * been selected yet, we don't yet know which profile tasks need to be run).
  *
+ * You can override this using hook_install_tasks() or
+ * hook_install_tasks_alter().
+ *
  * @param $install_state
  *   An array of information about the current installation state.
  *
  * @return
- *   A list of tasks to be performed, with associated metadata.
+ *   A list of tasks to be performed, with associated metadata as returned by
+ *   hook_install_tasks().
  */
 function install_tasks_to_perform($install_state) {
   // Start with a list of all currently available tasks.
@@ -850,7 +855,6 @@ function install_verify_settings() {
   return FALSE;
 }
 
-
 /**
  * Verifies the PDO library.
  */
@@ -862,7 +866,6 @@ function install_verify_pdo() {
   // PECL extension.
   return extension_loaded('pdo') && defined('PDO::ATTR_DEFAULT_FETCH_MODE');
 }
-
 
 /**
  * Form constructor for a form to configure and rewrite settings.php.
@@ -1608,7 +1611,6 @@ function _install_profile_modules_finished($success, $results, $operations) {
   drupal_flush_all_caches();
 }
 
-
 /**
  * Checks installation requirements and reports any errors.
  */
@@ -1828,6 +1830,22 @@ function _install_configure_form($form, &$form_state, &$install_state) {
     '#attributes' => array('id' => 'edit-clean-url', 'class' => array('install')),
   );
 
+  $form['update_notifications'] = array(
+    '#type' => 'fieldset',
+    '#title' => st('Update notifications'),
+    '#collapsible' => FALSE,
+  );
+  $form['update_notifications']['update_status_module'] = array(
+    '#type' => 'checkboxes',
+    '#options' => array(
+      1 => st('Check for updates automatically'),
+      2 => st('Receive e-mail notifications'),
+    ),
+    '#default_value' => array(1, 2),
+    '#description' => st('The system will notify you when updates and important security releases are available for installed components. Anonymous information about your site is sent to <a href="@drupal">Drupal.org</a>.', array('@drupal' => 'http://drupal.org')),
+    '#weight' => 15,
+  );
+
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
     '#type' => 'submit',
@@ -1868,6 +1886,16 @@ function install_configure_form_submit($form, &$form_state) {
   variable_set('date_default_timezone', $form_state['values']['date_default_timezone']);
   variable_set('site_default_country', $form_state['values']['site_default_country']);
 
+  // Enable update.module if this option was selected.
+  if ($form_state['values']['update_status_module'][1]) {
+    module_enable(array('update'), FALSE);
+
+    // Add the site maintenance account's email address to the list of
+    // addresses to be notified when updates are available, if selected.
+    if ($form_state['values']['update_status_module'][2]) {
+      variable_set('update_notify_emails', array($form_state['values']['account']['mail']));
+    }
+  }
 
   // We precreated user 1 with placeholder values. Let's save the real values.
   $account = user_load(1);

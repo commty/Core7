@@ -93,7 +93,7 @@ define('STREAM_WRAPPERS_LOCAL_NORMAL', STREAM_WRAPPERS_LOCAL | STREAM_WRAPPERS_N
 /**
  * Generic PHP stream wrapper interface.
  *
- * @see http://www.php.net/manual/en/class.streamwrapper.php
+ * @see http://www.php.net/manual/class.streamwrapper.php
  */
 interface StreamWrapperInterface {
   public function stream_open($uri, $mode, $options, &$opened_url);

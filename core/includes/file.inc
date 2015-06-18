@@ -282,7 +282,6 @@ function file_stream_wrapper_uri_normalize($uri) {
       $uri = $scheme . '://' . $target;
     }
   }
-
   return $uri;
 }
 
@@ -395,8 +394,8 @@ function file_create_url($uri) {
     }
   }
   elseif ($scheme == 'http' || $scheme == 'https') {
-    // Check for http so that we don't have to implement getExternalUrl() for
-    // the http wrapper.
+    // Check for HTTP so that we don't have to implement getExternalUrl() for
+    // the HTTP wrapper.
     return $uri;
   }
   else {
@@ -1560,7 +1559,7 @@ function file_save_upload($form_field_name, $validators = array(), $destination 
     return FALSE;
   }
 
-  // Add in our check of the the file name length.
+  // Add in our check of the file name length.
   $validators['file_validate_name_length'] = array();
 
   // Call the validation functions specified by this function's caller.
@@ -1749,7 +1748,6 @@ function file_validate_extensions(stdClass $file, $extensions) {
  */
 function file_validate_size(stdClass $file, $file_limit = 0, $user_limit = 0) {
   global $user;
-
   $errors = array();
 
     //https://github.com/drupal/drupal/commit/99c124d4d4c86d2cd2a9dc65d71632bc0dd98c1a#diff-4e0145abc1f82e6483c217eea8f84333R1747

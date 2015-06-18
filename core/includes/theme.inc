@@ -1587,7 +1587,7 @@ function _theme_render_template_debug($template_function, $template_file, $varia
 }
 
 /**
- * Enable a given list of themes.
+ * Enables a given list of themes.
  *
  * @param $theme_list
  *   An array of theme names.
@@ -2138,7 +2138,7 @@ function theme_mark($variables)
             return ' <span class="marker">' . t('new') . '</span>';
         } elseif ($type == MARK_UPDATED) {
             //return ' <span class="popovers marker" data-toggle="popover" data-placement="top" data-trigger="hover" data-content="' . t('updated') . '"></span>';
-            return ' <span class="marker">' . t('updated') . '</span>';
+            return ' <span class="popovers marker">' . t('updated') . '</span>';
         }
     }
 }
@@ -2204,9 +2204,9 @@ function theme_item_list($variables)
 //      if ($i == 1) {
 //        $attributes['class'][] = 'first';
 //      }
-            if ($i == $num_items) {
-                $attributes['id'] = 'last';
-            }
+//            if ($i == $num_items) {
+//                $attributes['id'] = 'last';
+//            }
             $attributes['class'][] = $class;
 
             $output .= '<li' . drupal_attributes($attributes) . '>' . $data . "</li>\n";

@@ -77,7 +77,7 @@
  * the elements and properties of the form. For information on the array
  * components and format, and more detailed explanations of the Form API
  * workflow, see the
- * @link http://api.drupal.org/api/drupal/developer--topics--forms_api_reference.html Form API reference @endlink
+ * @link forms_api_reference.html Form API reference @endlink
  * and the
  * @link http://drupal.org/node/37775 Form API documentation section. @endlink
  * In addition, there is a set of Form API tutorials in
@@ -167,6 +167,12 @@ function drupal_get_form($form_id) {
  *       processed.
  *     - base_form_id: Identification for a base form, as declared in a
  *       hook_forms() implementation.
+ *     - immutable: If this flag is set to TRUE, a new form build id is
+ *       generated when the form is loaded from the cache. If it is subsequently
+ *       saved to the cache again, it will have another cache id and therefore
+ *       the original form and form-state will remain unaltered. This is
+ *       important when page caching is enabled in order to prevent form state
+ *       from leaking between anonymous users.
  *   - rebuild_info: Internal. Similar to 'build_info', but pertaining to
  *     drupal_rebuild_form().
  *   - rebuild: Normally, after the entire form processing is completed and
@@ -2656,8 +2662,8 @@ function _form_options_flatten($array) {
  *   - #required: (optional) Whether the user needs to select an option (TRUE)
  *     or not (FALSE). Defaults to FALSE.
  *   - #empty_option: (optional) The label to show for the first default option.
- *     By default, the label is automatically set to "- Please select -" for a
- *     required field and "- None -" for an optional field.
+ *     By default, the label is automatically set to "- Select -" for a required
+ *     field and "- None -" for an optional field.
  *   - #empty_value: (optional) The value for the first default option, which is
  *     used to determine whether the user submitted a value or not.
  *     - If #required is TRUE, this defaults to '' (an empty string).
@@ -2728,17 +2734,43 @@ function theme_select($variables) {
 }
 
 /**
- * Converts a select form element's options array into HTML.
+ * Converts an array of options into HTML, for use in select list form elements.
  *
- * @param $element
- *   An associative array containing the properties of the element.
- * @param $choices
- *   Mixed: Either an associative array of items to list as choices, or an
- *   object with an 'option' member that is an associative array. This
- *   parameter is only used internally and should not be passed.
+ * This function calls itself recursively to obtain the values for each optgroup
+ * within the list of options and when the function encounters an object with
+ * an 'options' property inside $element['#options'].
  *
- * @return
- *   An HTML string of options for the select form element.
+ * @param array $element
+ *   An associative array containing the following key-value pairs:
+ *   - #multiple: Optional Boolean indicating if the user may select more than
+ *     one item.
+ *   - #options: An associative array of options to render as HTML. Each array
+ *     value can be a string, an array, or an object with an 'option' property:
+ *     - A string or integer key whose value is a translated string is
+ *       interpreted as a single HTML option element. Do not use placeholders
+ *       that sanitize data: doing so will lead to double-escaping. Note that
+ *       the key will be visible in the HTML and could be modified by malicious
+ *       users, so don't put sensitive information in it.
+ *     - A translated string key whose value is an array indicates a group of
+ *       options. The translated string is used as the label attribute for the
+ *       optgroup. Do not use placeholders to sanitize data: doing so will lead
+ *       to double-escaping. The array should contain the options you wish to
+ *       group and should follow the syntax of $element['#options'].
+ *     - If the function encounters a string or integer key whose value is an
+ *       object with an 'option' property, the key is ignored, the contents of
+ *       the option property are interpreted as $element['#options'], and the
+ *       resulting HTML is added to the output.
+ *   - #value: Optional integer, string, or array representing which option(s)
+ *     to pre-select when the list is first displayed. The integer or string
+ *     must match the key of an option in the '#options' list. If '#multiple' is
+ *     TRUE, this can be an array of integers or strings.
+ * @param array|null $choices
+ *   (optional) Either an associative array of options in the same format as
+ *   $element['#options'] above, or NULL. This parameter is only used internally
+ *   and is not intended to be passed in to the initial function call.
+ *
+ * @return string
+ *   An HTML string of options and optgroups for use in a select form element.
  */
 function form_select_options($element, $choices = NULL) {
   if (!isset($choices)) {
@@ -3059,18 +3091,18 @@ function date_validate($element) {
  */
 function map_month($month) {
   $months = &drupal_static(__FUNCTION__, array(
-    1 => 'Янв',
-    2 => 'Фев',
-    3 => 'Март',
-    4 => 'Апр',
-    5 => 'Май',
-    6 => 'Июнь',
-    7 => 'Июль',
-    8 => 'Авг',
-    9 => 'Сен',
-    10 => 'Окт',
-    11 => 'Нов',
-    12 => 'Дек',
+    1 => 'Jan',
+    2 => 'Feb',
+    3 => 'Mar',
+    4 => 'Apr',
+    5 => 'May',
+    6 => 'Jun',
+    7 => 'Jul',
+    8 => 'Aug',
+    9 => 'Sep',
+    10 => 'Oct',
+    11 => 'Nov',
+    12 => 'Dec',
   ));
   return t($months[$month]);
 }

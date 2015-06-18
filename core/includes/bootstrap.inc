@@ -8,7 +8,7 @@
 /**
  * The current system version.
  */
-define('VERSION', '7.36');
+define('VERSION', '7.37');
 
 /**
  * Core API compatibility.
@@ -1294,9 +1294,7 @@ function drupal_page_header() {
 
   $default_headers = array(
     'Expires' => 'Sun, 19 Nov 1978 05:00:00 GMT',
-    'Last-Modified' => gmdate(DATE_RFC7231, REQUEST_TIME),
     'Cache-Control' => 'no-cache, must-revalidate, post-check=0, pre-check=0',
-    'ETag' => '"' . REQUEST_TIME . '"',
   );
   drupal_send_headers($default_headers);
 }
@@ -1456,7 +1454,7 @@ function drupal_unpack($obj, $field = 'data') {
  * variable text such as user names or link URLs into translated text. Variable
  * substitution looks like this:
  * @code
- * $text = t("@name's blog", array('@name' => user_format_name($account)));
+ * $text = t("@name's blog", array('@name' => format_username($account)));
  * @endcode
  * Basically, you can put variables like @name into your string, and t() will
  * substitute their sanitized values at translation time. (See the
@@ -1587,12 +1585,13 @@ function format_string($string, array $args = array()) {
  * Also validates strings as UTF-8 to prevent cross site scripting attacks on
  * Internet Explorer 6.
  *
- * @param $text
+ * @param string $text
  *   The text to be checked or processed.
  *
- * @return
- *   An HTML safe version of $text, or an empty string if $text is not
- *   valid UTF-8.
+ * @return string
+ *   An HTML safe version of $text. If $text is not valid UTF-8, an empty string
+ *   is returned and, on PHP < 5.4, a warning may be issued depending on server
+ *   configuration (see @link https://bugs.php.net/bug.php?id=47494 @endlink).
  *
  * @see drupal_validate_utf8()
  * @ingroup sanitization
@@ -2204,7 +2203,7 @@ function drupal_anonymous_user() {
  *   drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
  * @endcode
  *
- * @param $phase
+ * @param int $phase
  *   A constant telling which phase to bootstrap to. When you bootstrap to a
  *   particular phase, all earlier phases are run automatically. Possible
  *   values:
@@ -2217,11 +2216,11 @@ function drupal_anonymous_user() {
  *   - DRUPAL_BOOTSTRAP_LANGUAGE: Finds out the language of the page.
  *   - DRUPAL_BOOTSTRAP_FULL: Fully loads Drupal. Validates and fixes input
  *     data.
- * @param $new_phase
+ * @param boolean $new_phase
  *   A boolean, set to FALSE if calling drupal_bootstrap from inside a
  *   function called from drupal_bootstrap (recursion).
  *
- * @return
+ * @return int
  *   The most recently completed phase.
  */
 function drupal_bootstrap($phase = NULL, $new_phase = TRUE) {
@@ -2672,7 +2671,7 @@ function drupal_installation_attempted() {
  *
  * This would include implementations of hook_install(), which could run
  * during the Drupal installation phase, and might also be run during
- * non-installation time, such as while installing the module from the the
+ * non-installation time, such as while installing the module from the
  * module administration page.
  *
  * Example usage:
@@ -3355,8 +3354,8 @@ function registry_update() {
  * However, the above line of code does not work, because PHP only allows static
  * variables to be initializied by literal values, and does not allow static
  * variables to be assigned to references.
- * - http://php.net/manual/en/language.variables.scope.php#language.variables.scope.static
- * - http://php.net/manual/en/language.variables.scope.php#language.variables.scope.references
+ * - http://php.net/manual/language.variables.scope.php#language.variables.scope.static
+ * - http://php.net/manual/language.variables.scope.php#language.variables.scope.references
  * The example below shows the syntax needed to work around both limitations.
  * For benchmarks and more information, see http://drupal.org/node/619666.
  *
@@ -3428,6 +3427,8 @@ function &drupal_static($name, $default_value = NULL, $reset = FALSE) {
  *
  * @param $name
  *   Name of the static variable to reset. Omit to reset all variables.
+ *   Resetting all variables should only be used, for example, for running unit
+ *   tests with a clean environment.
  */
 function drupal_static_reset($name = NULL) {
   drupal_static($name, NULL, TRUE);
