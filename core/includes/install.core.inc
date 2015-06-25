@@ -1830,21 +1830,21 @@ function _install_configure_form($form, &$form_state, &$install_state) {
     '#attributes' => array('id' => 'edit-clean-url', 'class' => array('install')),
   );
 
-  $form['update_notifications'] = array(
-    '#type' => 'fieldset',
-    '#title' => st('Update notifications'),
-    '#collapsible' => FALSE,
-  );
-  $form['update_notifications']['update_status_module'] = array(
-    '#type' => 'checkboxes',
-    '#options' => array(
-      1 => st('Check for updates automatically'),
-      2 => st('Receive e-mail notifications'),
-    ),
-    '#default_value' => array(1, 2),
-    '#description' => st('The system will notify you when updates and important security releases are available for installed components. Anonymous information about your site is sent to <a href="@drupal">Drupal.org</a>.', array('@drupal' => 'http://drupal.org')),
-    '#weight' => 15,
-  );
+//  $form['update_notifications'] = array(
+//    '#type' => 'fieldset',
+//    '#title' => st('Update notifications'),
+//    '#collapsible' => FALSE,
+//  );
+//  $form['update_notifications']['update_status_module'] = array(
+//    '#type' => 'checkboxes',
+//    '#options' => array(
+//      1 => st('Check for updates automatically'),
+//      2 => st('Receive e-mail notifications'),
+//    ),
+//    '#default_value' => array(1, 2),
+//    '#description' => st('The system will notify you when updates and important security releases are available for installed components. Anonymous information about your site is sent to <a href="@drupal">Drupal.org</a>.', array('@drupal' => 'http://drupal.org')),
+//    '#weight' => 15,
+//  );
 
   $form['actions'] = array('#type' => 'actions');
   $form['actions']['submit'] = array(
@@ -1887,15 +1887,15 @@ function install_configure_form_submit($form, &$form_state) {
   variable_set('site_default_country', $form_state['values']['site_default_country']);
 
   // Enable update.module if this option was selected.
-  if ($form_state['values']['update_status_module'][1]) {
-    module_enable(array('update'), FALSE);
-
-    // Add the site maintenance account's email address to the list of
-    // addresses to be notified when updates are available, if selected.
-    if ($form_state['values']['update_status_module'][2]) {
-      variable_set('update_notify_emails', array($form_state['values']['account']['mail']));
-    }
-  }
+//  if ($form_state['values']['update_status_module'][1]) {
+//    module_enable(array('update'), FALSE);
+//
+//    // Add the site maintenance account's email address to the list of
+//    // addresses to be notified when updates are available, if selected.
+//    if ($form_state['values']['update_status_module'][2]) {
+//      variable_set('update_notify_emails', array($form_state['values']['account']['mail']));
+//    }
+//  }
 
   // We precreated user 1 with placeholder values. Let's save the real values.
   $account = user_load(1);
