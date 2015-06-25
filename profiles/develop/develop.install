@@ -12,102 +12,67 @@
  * @see system_install()
  */
 function develop_install() {
-// Add text formats.
-  $filtered_html_format = array(
-    'format' => 'filtered_html',
-    'name' => 'Filtered HTML',
+
+ $full_html_format = (object)array(
+    'format' => 'full_html',
+    'name' => 'Full HTML',
     'weight' => 0,
     'filters' => array(
-      // URL filter.
       'filter_url' => array(
         'weight' => 0,
         'status' => 1,
       ),
-      // HTML filter.
+      'filter_autop' => array(
+        'weight' => 1,
+        'status' => 1,
+      ),
+      'filter_htmlcorrector' => array(
+        'weight' => 10,
+        'status' => 1,
+      ),
+    ),
+  );
+  filter_format_save($full_html_format);
+
+  $filtered_html_format = (object)array(
+    'format' => 'filtered_html',
+    'name' => 'Filtered HTML',
+    'weight' => 1,
+    'filters' => array(
+      'filter_url' => array(
+        'weight' => 0,
+        'status' => 1,
+      ),
       'filter_html' => array(
         'weight' => 1,
         'status' => 1,
       ),
-      // Line break filter.
       'filter_autop' => array(
         'weight' => 2,
         'status' => 1,
       ),
-      // HTML corrector filter.
       'filter_htmlcorrector' => array(
         'weight' => 10,
         'status' => 1,
       ),
     ),
   );
-  $filtered_html_format = (object) $filtered_html_format;
   filter_format_save($filtered_html_format);
 
-  $full_html_format = array(
-    'format' => 'full_html',
-    'name' => 'Full HTML',
-    'weight' => 1,
-    'filters' => array(
-      // URL filter.
-      'filter_url' => array(
-        'weight' => 0,
-        'status' => 1,
-      ),
-      // Line break filter.
-      'filter_autop' => array(
-        'weight' => 1,
-        'status' => 1,
-      ),
-      // HTML corrector filter.
-      'filter_htmlcorrector' => array(
-        'weight' => 10,
-        'status' => 1,
-      ),
-    ),
+  $html_format = (object)array(
+    'format' => 'html',
+    'name' => 'HTML without filters',
+    'weight' => 2,
   );
-  $full_html_format = (object) $full_html_format;
-  filter_format_save($full_html_format);
+  filter_format_save($html_format);
 
-  // Enable some standard blocks.
-  $default_theme = variable_get('theme_default', 'bartik');
-  $admin_theme = 'seven';
-  $blocks = array(
-    array(
-      'module' => 'system',
-      'delta' => 'powered-by',
-      'theme' => $default_theme,
-      'status' => 1,
-      'weight' => 10,
-      'region' => 'footer',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'system',
-      'delta' => 'main',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 0,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-    array(
-      'module' => 'user',
-      'delta' => 'login',
-      'theme' => $admin_theme,
-      'status' => 1,
-      'weight' => 10,
-      'region' => 'content',
-      'pages' => '',
-      'cache' => -1,
-    ),
-  );
-  $query = db_insert('block')->fields(array('module', 'delta', 'theme', 'status', 'weight', 'region', 'pages', 'cache'));
-  foreach ($blocks as $block) {
-    $query->values($block);
-  }
-  $query->execute();
+  // Enable default permissions for system roles.
+  $filtered_html_permission = filter_permission_name($filtered_html_format);
+  user_role_grant_permissions(DRUPAL_ANONYMOUS_RID, array($filtered_html_permission));
+  user_role_grant_permissions(DRUPAL_AUTHENTICATED_RID, array($filtered_html_permission));
+
+  watchdog('profile', 'Текстовые форматы настроены.', NULL);
+
   // Enable some standard blocks.
   // Insert default pre-defined node types into the database. For a complete
   // list of available node type attributes, refer to the node type API
@@ -115,12 +80,13 @@ function develop_install() {
   $types = array(
     array(
       'type' => 'page',
-      'name' => st('Basic page'),
+      'name' => 'Страница',
       'base' => 'node_content',
       'description' => st("Use <em>basic pages</em> for your static content, such as an 'About us' page."),
       'custom' => 1,
       'modified' => 1,
       'locked' => 0,
+      'title_label' => 'Заголовок',
     ),
     array(
       'type' => 'article',
@@ -130,21 +96,22 @@ function develop_install() {
       'custom' => 1,
       'modified' => 1,
       'locked' => 0,
+      'title_label' => 'Заголовок',
     ),
   );
 
   foreach ($types as $type) {
     $type = node_type_set_defaults($type);
     node_type_save($type);
-    node_add_body_field($type);
+    node_add_body_field($type, "Содержимое");
   }
 
   // Default "Basic page" to not be promoted and have comments disabled.
   variable_set('node_options_page', array('status'));
-  variable_set('comment_page', COMMENT_NODE_HIDDEN);
-
-  // Don't display date and author information for "Basic page" nodes by default.
+  variable_set('comment_page', 0);
   variable_set('node_submitted_page', FALSE);
+  variable_set('node_preview_page', 0);
+  variable_set('node_preview_article', 0);
 
   // Create an image field named "Image", enabled for the 'article' content type.
   // Many of the following values will be defaulted, they're included here as an illustrative examples.
@@ -201,7 +168,7 @@ function develop_install() {
       'default' => array(
         'label' => 'hidden',
         'type' => 'image',
-        'settings' => array('image_style' => 'large', 'image_link' => ''),
+        'settings' => array('image_style' => 'medium', 'image_link' => ''),
         'weight' => -1,
       ),
       'teaser' => array(
@@ -213,6 +180,8 @@ function develop_install() {
     ),
   );
   field_create_instance($instance);
+  
+  watchdog('profile', 'Типы контента настроены.', NULL);
 
 
   // Allow visitor account creation, but with administrative approval.
@@ -224,7 +193,7 @@ function develop_install() {
 
   // Create a default role for site administrators, with all available permissions assigned.
   $admin_role = new stdClass();
-  $admin_role->name = 'Administrator';
+  $admin_role->name = 'administrator';
   $admin_role->weight = 2;
   user_role_save($admin_role);
   user_role_grant_permissions($admin_role->rid, array_keys(module_invoke_all('permission')));
@@ -238,6 +207,9 @@ function develop_install() {
 
   variable_set('user_pictures', '1');
   variable_set('user_picture_style', 'thumbnail');
+  
+  watchdog('profile', 'Админ добавлен, права настроены.', NULL);
+  
 
   // Create a Home link in the main menu.
   $item = array(
@@ -246,9 +218,9 @@ function develop_install() {
     'menu_name' => 'main-menu',
   );
   menu_link_save($item);
-
-  // Update the menu router information.
-  menu_rebuild();
+  menu_rebuild(); // Update the menu router information.
+  
+  watchdog('profile', 'Меню настроено.', NULL);
 
   // Enable the admin theme.
   db_update('system')
@@ -258,4 +230,158 @@ function develop_install() {
     ->execute();
   variable_set('admin_theme', 'seven');
   variable_set('node_admin_theme', '1');
+  
+  develop_set_variables();
+  develop_configure_pathauto();
+  develop_configure_ckeditor();
+  develop_configure_webform();
+  develop_configure_locale();
+  
+}
+
+/**
+ * Configure variables.
+ */
+function develop_set_variables() {
+  
+  $variables = array(
+    'cron_safe_threshold' => 86400,
+    'views_ui_show_sql_query' => 1,
+    'views_ui_show_performance_statistics' => 1,
+    'views_ui_show_advanced_help_warning' => 0,
+    'views_ui_show_advanced_column' => 1,
+    'views_ui_display_embed' => 1,
+    'site_default_country' => 'RU',
+    'date_first_day' => 1,
+    'image_jpeg_quality' => 100,
+    'dev_timer' => 1,
+    'devel_memory' => 1,
+    'user_cancel_method' => 'user_cancel_reassign',
+   // 'mimemail_sitestyle' => 0,
+   // 'mimemail_format' => 'full_html',
+    'l10n_update_import_mode' => 2,
+  );
+  
+  foreach ($variables as $name => $value) {
+      variable_set($name, $value);
+    }
+
+  watchdog('profile', 'Переменные обновлены.', NULL);
+}
+
+function develop_configure_pathauto() {
+  module_enable(array('pathauto'));
+
+  $variables = array(
+    'pathauto_node_pattern' => '[node:title]',
+    'pathauto_taxonomy_term_pattern' => '[term:vocabulary]/[term:parent:parent:name]/[term:parent:name]/[term:name]',
+    'pathauto_user_pattern' => '',
+    'pathauto_transliterate' => 1,
+    'pathauto_reduce_ascii' => 1,
+  );
+  
+  foreach ($variables as $name => $value) {
+      variable_set($name, $value);
+    }
+
+  watchdog('profile', 'Модуль Pathauto настроен.', NULL);
+}
+
+/**
+ * Configure CKEditor module.
+ */
+function develop_configure_ckeditor() {
+  // Delete CKEditor Advance profile
+  module_load_include('inc', 'ckeditor', 'includes/ckeditor.admin');
+  ckeditor_profile_delete('Advanced');
+  
+  // Change CKEditor settings
+  $full_profile = ckeditor_profile_load('Full');
+  $full_profile_settings = $full_profile->settings;
+  $full_profile_settings['toolbar'] = "[
+    ['Bold','Italic','Strike'],
+    ['Link','Unlink'],
+    ['NumberedList','BulletedList'],
+    ['JustifyLeft','JustifyCenter','JustifyRight'],
+    ['Undo','Redo'],
+    ['PasteText','PasteFromWord'],
+    ['OCUpload','Image','Table','Blockquote','TextColor','SpecialChar'],
+    ['Format','Styles'],
+    ['Source','Maximize']
+  ]";
+  $full_profile_settings['show_toggle'] = 'f';
+  $full_profile_settings['allowed_content'] = 'f';
+
+  // Activate plugins
+  module_load_include('inc', 'ckeditor', 'includes/ckeditor.lib');
+  $plugin_list = ckeditor_load_plugins();
+  $enable_plugins = array('autogrow', 'ocupload');
+  foreach ($enable_plugins as $plugin_name) {
+    $full_profile_settings['loadPlugins'][$plugin_name] = $plugin_list[$plugin_name];
+  }
+
+  // Formatting settings
+  $full_profile_settings['custom_formatting'] = 't';
+  $full_profile_settings['formatting']['custom_formatting_options'] = array(
+    'indent'           => 'indent',
+    'breakAfterOpen'   => 'breakAfterOpen',
+    'breakBeforeClose' => 'breakBeforeClose',
+    'breakAfterClose'  => 'breakAfterClose',
+    'breakBeforeOpen'  => 0,
+    'pre_indent'       => 0,
+  );
+
+  // Config
+  $full_profile_settings['js_conf'] = 'config.autoGrow_maxHeight = 500;' . "\n";
+  $full_profile_settings['js_conf'] .= 'config.autoGrow_bottomSpace = 40;' . "\n";
+  $full_profile_settings['js_conf'] .= 'config.extraPlugins = \'image2\';' . "\n";
+  $full_profile_settings['js_conf'] .= 'config.image2_alignClasses = [\'align-left\', \'align-center\', \'align-right\'];' . "\n";
+
+  db_update('ckeditor_settings')
+    ->fields(array('settings' => serialize($full_profile_settings)))
+    ->condition('name', 'Full')
+    ->execute();
+
+  watchdog('profile', 'CKEditor настроен.', NULL);
+}
+
+/**
+ * Configure Webform module.
+ */
+function develop_configure_webform() {
+  $webform_node_type = node_type_load('webform');
+  $webform_node_type->name = 'Форма';
+  $webform_node_type->title_label = 'Название';
+  $webform_node_type->description = '';
+  node_type_save($webform_node_type);
+
+  $variables = array(
+    'node_options_webform' => array('status'),
+    'webform_search_index' => 0,
+    'node_submitted_webform' => FALSE,
+  );
+  
+  foreach ($variables as $name => $value) {
+      variable_set($name, $value);
+    }
+
+  watchdog('profile', 'Модуль Webform настроен.', NULL);
+}
+
+/**
+ * Configure locale.
+ */
+function develop_configure_locale() {
+  drupal_flush_all_caches();
+
+  // Add russian language
+  include_once DRUPAL_ROOT . '/includes/locale.inc';
+  locale_add_language('ru');
+
+  // Set russian language as default
+  $languages = language_list();
+  variable_set('language_default', $languages['ru']);
+  module_invoke_all('multilingual_settings_changed');
+
+  watchdog('profile', 'Язык настроен.', NULL);
 }
